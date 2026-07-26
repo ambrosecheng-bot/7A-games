@@ -1,0 +1,3046 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7A 人生遊戲 · Second Calling Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+TC:wght@600;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-deep:#081426;
+  --navy-panel:#0F2140;
+  --navy-raised:#152C52;
+  --navy-line:#24406B;
+  --gold:#D4AF37;
+  --gold-light:#F0D583;
+  --gold-dim:#8C7327;
+  --ink:#E8EDF5;
+  --ink-dim:#8FA3BF;
+  --jade:#3FBF8F;
+  --ember:#E8734A;
+  --shadow:0 8px 28px rgba(0,0,0,.45);
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--navy-deep);
+  background-image:radial-gradient(1200px 600px at 50% -10%, #123059 0%, transparent 60%);
+  color:var(--ink);
+  font-family:'Noto Sans TC',sans-serif;
+  min-height:100vh;
+}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+body.in-a4 .wrap{padding-bottom:90px}
+
+/* ---------- Shared header ---------- */
+header{text-align:center;padding:8px 0 14px}
+.crest{
+  font-family:'Cinzel',serif;font-weight:900;font-size:11px;letter-spacing:.42em;
+  color:var(--gold);text-transform:uppercase;margin-bottom:6px;
+}
+h1{
+  font-family:'Noto Serif TC',serif;font-weight:800;font-size:30px;
+  background:linear-gradient(180deg,var(--gold-light),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:.08em;
+}
+.subtitle{color:var(--ink-dim);font-size:12.5px;margin-top:4px;letter-spacing:.06em}
+
+/* ---------- Screens ---------- */
+.screen{display:none;animation:fadeUp .3s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- Level card (shared style) ---------- */
+.level-card{
+  margin-top:14px;background:var(--navy-panel);border:1px solid var(--navy-line);
+  border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow);
+}
+.level-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.level-title{font-family:'Noto Serif TC',serif;font-weight:800;font-size:15px;color:var(--gold-light)}
+.level-num{font-family:'Cinzel',serif;font-weight:700;font-size:12px;color:var(--ink-dim);letter-spacing:.15em}
+.xp-track{height:8px;background:var(--navy-deep);border-radius:99px;overflow:hidden;border:1px solid var(--navy-line)}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-light));border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.xp-label{font-size:11px;color:var(--ink-dim);margin-top:6px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* ---------- Hub: 7A cards ---------- */
+.hub-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
+.area-card{
+  display:flex;align-items:center;gap:14px;text-align:left;width:100%;
+  background:var(--navy-panel);border:1px solid var(--navy-line);border-radius:var(--radius);
+  padding:16px;cursor:pointer;box-shadow:var(--shadow);color:var(--ink);
+  font-family:'Noto Sans TC',sans-serif;
+  transition:transform .15s,border-color .25s;
+}
+.area-card:hover{border-color:var(--gold-dim)}
+.area-card:active{transform:scale(.98)}
+.area-card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.area-ico{
+  flex-shrink:0;width:52px;height:52px;border-radius:12px;
+  background:var(--navy-deep);border:1px solid var(--navy-line);
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+}
+.area-card.live .area-ico{border-color:var(--gold-dim);box-shadow:0 0 14px rgba(212,175,55,.15)}
+.area-body{flex:1;min-width:0}
+.area-code{font-family:'Cinzel',serif;font-weight:700;font-size:10.5px;color:var(--gold);letter-spacing:.22em}
+.area-name{font-family:'Noto Serif TC',serif;font-weight:800;font-size:16px;color:var(--ink);margin-top:2px}
+.area-en{font-size:11px;color:var(--ink-dim);margin-top:1px;letter-spacing:.04em}
+.area-side{flex-shrink:0;text-align:right}
+.area-xp{font-family:'Cinzel',serif;font-weight:700;font-size:14px;color:var(--gold-light);font-variant-numeric:tabular-nums}
+.area-status{font-size:10.5px;margin-top:3px}
+.area-status.live{color:var(--jade)}
+.area-status.locked{color:var(--ink-dim)}
+.hub-verse{
+  margin-top:18px;text-align:center;font-size:12px;color:var(--ink-dim);
+  line-height:1.8;padding:0 10px;
+}
+.hub-verse em{color:var(--gold);font-style:normal}
+
+/* ---------- Area sub-header / back ---------- */
+.back-row{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.back-btn{
+  background:none;border:1px solid var(--navy-line);color:var(--ink-dim);
+  border-radius:99px;padding:7px 16px;font-size:12.5px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;
+  transition:color .2s,border-color .2s;
+}
+.back-btn:hover{color:var(--ink);border-color:var(--ink-dim)}
+.back-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.area-tag{font-family:'Cinzel',serif;font-size:10.5px;color:var(--gold);letter-spacing:.22em}
+
+/* ---------- Placeholder area ---------- */
+.ph-card{
+  margin-top:16px;background:var(--navy-panel);border:1px dashed var(--gold-dim);
+  border-radius:var(--radius);padding:34px 20px;box-shadow:var(--shadow);text-align:center;
+}
+.ph-ico{font-size:44px;margin-bottom:12px}
+.ph-name{font-family:'Noto Serif TC',serif;font-weight:800;font-size:22px;color:var(--gold-light)}
+.ph-en{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:.2em;margin-top:4px}
+.ph-desc{font-size:13.5px;color:var(--ink-dim);line-height:1.8;margin-top:14px}
+.ph-lock{
+  display:inline-block;margin-top:18px;background:var(--navy-deep);border:1px solid var(--navy-line);
+  border-radius:99px;padding:8px 20px;font-size:12.5px;color:var(--ink-dim);
+}
+
+/* ---------- A4: Tabs ---------- */
+nav#a4nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(8,20,38,.92);backdrop-filter:blur(12px);
+  border-top:1px solid var(--navy-line);
+  display:none;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));
+}
+body.in-a4 nav#a4nav{display:flex}
+.tab-btn{
+  background:none;border:none;color:var(--ink-dim);font-family:'Noto Sans TC',sans-serif;
+  font-size:11.5px;font-weight:500;cursor:pointer;padding:6px 10px;border-radius:10px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .2s;
+}
+.tab-btn .ico{font-size:19px;line-height:1}
+.tab-btn.active{color:var(--gold-light)}
+.tab-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.panel{display:none;animation:fadeUp .3s ease}
+.panel.active{display:block}
+
+/* ---------- A4: Quest ring ---------- */
+.quest-card{
+  margin-top:16px;background:var(--navy-panel);border:1px solid var(--navy-line);
+  border-radius:var(--radius);padding:22px 16px 18px;box-shadow:var(--shadow);text-align:center;
+}
+.today-label{font-size:12px;color:var(--ink-dim);letter-spacing:.1em;margin-bottom:14px}
+.ring-box{position:relative;width:220px;height:220px;margin:0 auto}
+.ring-box svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--navy-deep);stroke-width:12}
+.ring-ticks{fill:none;stroke:var(--navy-line);stroke-width:12;stroke-dasharray:1 5.597}
+.ring-fg{fill:none;stroke:url(#goldGrad);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.4,0,.2,1)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.ring-count{font-family:'Cinzel',serif;font-weight:700;font-size:52px;color:var(--gold-light);line-height:1;font-variant-numeric:tabular-nums}
+.ring-goal{font-size:13px;color:var(--ink-dim);margin-top:4px}
+.ring-done{font-family:'Noto Serif TC',serif;font-weight:800;font-size:13px;color:var(--jade);margin-top:6px;min-height:18px}
+
+/* ---------- A4: Action buttons ---------- */
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:18px}
+.act-btn{
+  background:var(--navy-raised);border:1px solid var(--navy-line);border-radius:12px;
+  color:var(--ink);padding:14px 6px 12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:transform .12s,border-color .2s,background .2s;
+}
+.act-btn:active{transform:scale(.94)}
+.act-btn:hover{border-color:var(--gold-dim)}
+.act-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.act-ico{font-size:22px}
+.act-name{font-size:13px;font-weight:700}
+.act-xp{font-size:10.5px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:.08em}
+.act-count{font-size:11px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.funnel-title{
+  margin:22px 0 10px;font-family:'Noto Serif TC',serif;font-weight:800;font-size:14px;
+  color:var(--gold);letter-spacing:.12em;display:flex;align-items:center;gap:10px;
+}
+.funnel-title::before,.funnel-title::after{content:"";flex:1;height:1px;background:var(--navy-line)}
+.funnel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fun-btn{
+  background:linear-gradient(180deg,var(--navy-raised),var(--navy-panel));
+  border:1px solid var(--gold-dim);border-radius:12px;color:var(--ink);
+  padding:14px 6px 12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:transform .12s,border-color .2s;
+}
+.fun-btn:active{transform:scale(.94)}
+.fun-btn:hover{border-color:var(--gold)}
+.fun-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.undo-row{margin-top:14px;text-align:center}
+.undo-btn{
+  background:none;border:1px solid var(--navy-line);color:var(--ink-dim);
+  border-radius:99px;padding:7px 20px;font-size:12.5px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;
+  transition:color .2s,border-color .2s;
+}
+.undo-btn:hover{color:var(--ink);border-color:var(--ink-dim)}
+
+/* ---------- A4: Week view ---------- */
+.week-card{margin-top:16px;background:var(--navy-panel);border:1px solid var(--navy-line);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow)}
+.week-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.week-title{font-family:'Noto Serif TC',serif;font-weight:800;font-size:16px;color:var(--gold-light)}
+.streak-chip{
+  display:flex;align-items:center;gap:6px;background:var(--navy-deep);
+  border:1px solid var(--gold-dim);border-radius:99px;padding:5px 13px;
+  font-size:12.5px;color:var(--gold-light);font-weight:700;
+}
+.day-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(36,64,107,.5)}
+.day-row:last-child{border-bottom:none}
+.day-name{width:44px;font-family:'Cinzel',serif;font-weight:700;font-size:12px;color:var(--ink-dim);letter-spacing:.1em}
+.day-bar{flex:1;height:10px;background:var(--navy-deep);border-radius:99px;overflow:hidden;border:1px solid var(--navy-line)}
+.day-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:99px;transition:width .4s}
+.day-fill.full{background:linear-gradient(90deg,var(--jade),#6FDFB4)}
+.day-num{width:58px;text-align:right;font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--ink-dim)}
+.day-num strong{color:var(--ink)}
+.day-row.today .day-name{color:var(--gold)}
+.week-total{margin-top:14px;text-align:center;font-size:13px;color:var(--ink-dim)}
+.week-total strong{font-family:'Cinzel',serif;color:var(--gold-light);font-size:16px}
+.funnel-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.fs-cell{background:var(--navy-deep);border:1px solid var(--navy-line);border-radius:10px;padding:10px 4px;text-align:center}
+.fs-num{font-family:'Cinzel',serif;font-weight:700;font-size:20px;color:var(--gold-light);font-variant-numeric:tabular-nums}
+.fs-lab{font-size:10.5px;color:var(--ink-dim);margin-top:3px}
+
+/* ---------- A4: Scroll (offer) ---------- */
+.scroll-card{
+  margin-top:16px;background:var(--navy-panel);border:1px solid var(--gold-dim);
+  border-radius:var(--radius);padding:20px 18px;box-shadow:var(--shadow);position:relative;
+}
+.scroll-card::before{
+  content:"";position:absolute;inset:6px;border:1px solid rgba(212,175,55,.25);border-radius:10px;pointer-events:none;
+}
+.scroll-h{font-family:'Noto Serif TC',serif;font-weight:800;font-size:17px;color:var(--gold-light);margin-bottom:4px}
+.scroll-sub{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:.2em;margin-bottom:14px}
+.offer-line{display:flex;gap:10px;margin-bottom:10px;font-size:13.5px;line-height:1.65}
+.offer-key{flex-shrink:0;width:86px;color:var(--gold);font-weight:700;font-size:12.5px;padding-top:1px}
+.offer-val{color:var(--ink)}
+.offer-val em{color:var(--gold-light);font-style:normal;font-weight:700}
+.script-box{
+  background:var(--navy-deep);border:1px solid var(--navy-line);border-radius:10px;
+  padding:14px;margin-top:10px;font-size:13px;line-height:1.7;color:var(--ink);
+  white-space:pre-wrap;font-family:'Noto Sans TC',sans-serif;
+}
+.copy-btn{
+  margin-top:8px;background:var(--navy-raised);border:1px solid var(--gold-dim);color:var(--gold-light);
+  border-radius:8px;padding:8px 18px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;
+  transition:background .2s;
+}
+.copy-btn:hover{background:var(--navy-line)}
+.scroll-note{font-size:12px;color:var(--ink-dim);line-height:1.7;margin-top:12px;padding-top:12px;border-top:1px dashed var(--navy-line)}
+
+/* ---------- A4: Badges / stats / vault ---------- */
+.badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.badge{
+  background:var(--navy-panel);border:1px solid var(--navy-line);border-radius:12px;
+  padding:16px 12px;text-align:center;transition:border-color .3s;filter:grayscale(1);opacity:.45;
+}
+.badge.won{filter:none;opacity:1;border-color:var(--gold-dim);box-shadow:0 0 18px rgba(212,175,55,.12)}
+.badge-ico{font-size:30px;margin-bottom:6px}
+.badge-name{font-family:'Noto Serif TC',serif;font-weight:800;font-size:13.5px;color:var(--gold-light)}
+.badge-desc{font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.5}
+.life-stats{margin-top:16px;background:var(--navy-panel);border:1px solid var(--navy-line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.life-h{font-family:'Noto Serif TC',serif;font-weight:800;font-size:14px;color:var(--gold);margin-bottom:10px;letter-spacing:.1em}
+.life-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(36,64,107,.4)}
+.life-row:last-child{border-bottom:none}
+.life-row span:first-child{color:var(--ink-dim)}
+.life-row span:last-child{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700}
+.vault-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;margin-bottom:12px}
+.vault-btns{display:flex;gap:10px;flex-wrap:wrap}
+.vault-btns .copy-btn{margin-top:0}
+.vault-meta{font-size:11.5px;color:var(--ink-dim);margin-top:10px;font-variant-numeric:tabular-nums}
+
+/* ---------- A1: daily checks / streak / milestones ---------- */
+.a1-checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.chk-btn{
+  background:var(--navy-raised);border:1px solid var(--navy-line);border-radius:12px;
+  color:var(--ink);padding:16px 8px 14px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:transform .12s,border-color .25s,background .25s;position:relative;
+}
+.chk-btn:active{transform:scale(.95)}
+.chk-btn:hover{border-color:var(--gold-dim)}
+.chk-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.chk-btn.done{border-color:var(--jade);background:linear-gradient(180deg,rgba(63,191,143,.14),var(--navy-raised))}
+.chk-btn.done::after{
+  content:"✓";position:absolute;top:8px;right:10px;color:var(--jade);
+  font-weight:700;font-size:14px;
+}
+.streak-hero{
+  display:flex;align-items:baseline;justify-content:center;gap:8px;margin-top:6px;
+}
+.streak-big{font-family:'Cinzel',serif;font-weight:700;font-size:56px;color:var(--gold-light);line-height:1;font-variant-numeric:tabular-nums}
+.streak-unit{font-size:14px;color:var(--ink-dim)}
+.streak-caption{text-align:center;font-size:12px;color:var(--ink-dim);margin-top:6px;letter-spacing:.08em}
+.a1-done-msg{font-family:'Noto Serif TC',serif;font-weight:800;font-size:13px;color:var(--jade);text-align:center;margin-top:14px;min-height:18px}
+.a1-rule{font-size:11.5px;color:var(--ink-dim);text-align:center;margin-top:6px}
+.mile-card{margin-top:16px;background:var(--navy-panel);border:1px solid var(--navy-line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.mile-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.mile-title{font-family:'Noto Serif TC',serif;font-weight:800;font-size:14px;color:var(--gold)}
+.mile-next{font-size:12px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.mile-track{height:10px;background:var(--navy-deep);border-radius:99px;overflow:hidden;border:1px solid var(--navy-line)}
+.mile-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-light));border-radius:99px;transition:width .5s}
+.mile-marks{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--ink-dim);font-family:'Cinzel',serif;letter-spacing:.05em}
+.dots-row{display:flex;justify-content:space-between;gap:6px;margin-top:12px}
+.dot-cell{flex:1;text-align:center}
+.dot{
+  width:26px;height:26px;border-radius:50%;margin:0 auto;
+  background:var(--navy-deep);border:1px solid var(--navy-line);
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.dot.hit{background:linear-gradient(135deg,var(--jade),#6FDFB4);border-color:var(--jade);color:#04301F;font-weight:700}
+.dot.today-ring{box-shadow:0 0 0 2px var(--gold)}
+.dot-lab{font-size:9.5px;color:var(--ink-dim);margin-top:4px;font-family:'Cinzel',serif;letter-spacing:.05em}
+
+/* ---------- A2: art rows / minute chips ---------- */
+.main-bar-wrap{margin-top:16px;text-align:left}
+.main-bar-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.main-bar-name{font-family:'Noto Serif TC',serif;font-weight:800;font-size:14px;color:var(--gold-light)}
+.main-bar-num{font-size:12px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.main-bar{height:12px;background:var(--navy-deep);border-radius:99px;overflow:hidden;border:1px solid var(--navy-line)}
+.main-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-light));border-radius:99px;transition:width .4s}
+.main-bar-fill.full{background:linear-gradient(90deg,var(--jade),#6FDFB4)}
+.art-row{
+  display:flex;align-items:center;gap:10px;margin-top:12px;
+  background:var(--navy-raised);border:1px solid var(--navy-line);border-radius:12px;padding:12px;
+}
+.art-row.main-art{border-color:var(--gold-dim)}
+.art-info{flex:1;min-width:0;text-align:left}
+.art-name{font-size:13.5px;font-weight:700;color:var(--ink)}
+.art-name .star{color:var(--gold);font-size:11px}
+.art-min{font-size:11.5px;color:var(--ink-dim);font-variant-numeric:tabular-nums;margin-top:2px}
+.chips{display:flex;gap:6px}
+.chip{
+  background:var(--navy-deep);border:1px solid var(--navy-line);color:var(--gold-light);
+  border-radius:99px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans TC',sans-serif;transition:transform .12s,border-color .2s;
+  font-variant-numeric:tabular-nums;
+}
+.chip:active{transform:scale(.92)}
+.chip:hover{border-color:var(--gold-dim)}
+.chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---------- A3: son cards / notes / journal ---------- */
+.son-card{
+  margin-top:16px;background:var(--navy-panel);border:1px solid var(--navy-line);
+  border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);
+}
+.son-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.son-name{font-family:'Noto Serif TC',serif;font-weight:800;font-size:19px;color:var(--gold-light)}
+.son-week{font-size:12.5px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.son-week b{color:var(--gold-light);font-family:'Cinzel',serif}
+.son-week.met{color:var(--jade)}
+.son-week.met b{color:var(--jade)}
+.a3-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note-box{margin-top:12px;background:var(--navy-deep);border:1px solid var(--gold-dim);border-radius:10px;padding:12px}
+.note-label{font-size:12.5px;font-weight:700;color:var(--gold-light);margin-bottom:8px}
+.note-box textarea{
+  width:100%;background:var(--navy-panel);border:1px solid var(--navy-line);border-radius:8px;
+  color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:13.5px;line-height:1.6;
+  padding:10px;resize:vertical;min-height:56px;
+}
+.note-box textarea:focus{outline:2px solid var(--gold);outline-offset:1px}
+.note-actions{display:flex;gap:8px;margin-top:10px}
+.entries{margin-top:14px;border-top:1px dashed var(--navy-line);padding-top:10px}
+.entry-row{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:12.5px;line-height:1.6}
+.entry-ico{flex-shrink:0}
+.entry-body{flex:1;min-width:0}
+.entry-meta{color:var(--ink-dim);font-size:11px;font-variant-numeric:tabular-nums}
+.entry-note{color:var(--ink);word-break:break-word}
+.entry-note.empty{color:var(--ink-dim);font-style:italic}
+.entries-empty{font-size:12px;color:var(--ink-dim);text-align:center;padding:6px 0}
+
+#toast{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-80px);
+  background:var(--navy-raised);border:1px solid var(--gold);color:var(--gold-light);
+  border-radius:99px;padding:10px 24px;font-size:14px;font-weight:700;z-index:100;
+  box-shadow:var(--shadow);transition:transform .35s cubic-bezier(.34,1.4,.64,1);pointer-events:none;
+  white-space:nowrap;
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+@media (max-width:400px){
+  .ring-box{width:190px;height:190px}
+  .ring-box svg{width:190px;height:190px}
+  .ring-count{font-size:44px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= SCREEN: HUB ================= -->
+  <section class="screen active" id="screen-hub">
+    <header>
+      <div class="crest">✦ Second Calling · 2026–2034 ✦</div>
+      <h1>7A 人生遊戲</h1>
+      <div class="subtitle">Seven Quests · One Calling — 你的第二使命地圖</div>
+    </header>
+
+    <div class="level-card">
+      <div class="level-row">
+        <span class="level-title" id="hubLevelTitle">七域見習者</span>
+        <span class="level-num" id="hubLevelNum">LV.1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="hubXpFill" style="width:0%"></div></div>
+      <div class="xp-label" id="hubXpLabel">0 XP</div>
+    </div>
+
+    <div class="hub-grid" id="hubGrid"></div>
+
+    <div class="hub-verse">「我靠著那加給我力量的，凡事都能做。」<em>腓立比書 4:13</em></div>
+
+    <div class="life-stats">
+      <div class="life-h">資 料 保 管 庫</div>
+      <div class="vault-desc">全部七區資料自動存於本瀏覽器（localStorage）。建議每週五收兵後匯出一次備份，存放到 Google Drive 或 Dropbox。</div>
+      <div class="vault-btns">
+        <button class="copy-btn" id="exportBtn">⬇️ 匯出備份（JSON）</button>
+        <button class="copy-btn" id="importBtn">⬆️ 匯入備份</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+      </div>
+      <div class="vault-meta" id="vaultMeta"></div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN: PLACEHOLDER AREA ================= -->
+  <section class="screen" id="screen-area">
+    <div class="back-row">
+      <button class="back-btn" data-back>← 返回大廳</button>
+      <span class="area-tag" id="phTag">A1</span>
+    </div>
+    <div class="ph-card">
+      <div class="ph-ico" id="phIco">🏃</div>
+      <div class="ph-name" id="phName">—</div>
+      <div class="ph-en" id="phEn">—</div>
+      <div class="ph-desc" id="phDesc">—</div>
+      <div class="ph-lock">🔒 遊戲內容待設計 — 訪談完成後解鎖</div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN: A1 AGING WELL ================= -->
+  <section class="screen" id="screen-a1">
+    <div class="back-row">
+      <button class="back-btn" data-back>← 返回大廳</button>
+      <span class="area-tag">A1 · AGING WELL</span>
+    </div>
+    <header>
+      <h1>康健之道</h1>
+      <div class="subtitle">Temple Keeper — 日日看守身體的殿</div>
+    </header>
+
+    <div class="level-card">
+      <div class="level-row">
+        <span class="level-title" id="a1LevelTitle">初心行者</span>
+        <span class="level-num" id="a1LevelNum">LV.1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="a1XpFill" style="width:0%"></div></div>
+      <div class="xp-label" id="a1XpLabel">0 XP</div>
+    </div>
+
+    <div class="quest-card">
+      <div class="today-label" id="a1TodayLabel">—</div>
+      <div class="streak-hero">
+        <span style="font-size:34px">🔥</span>
+        <span class="streak-big" id="a1StreakBig">0</span>
+        <span class="streak-unit">天</span>
+      </div>
+      <div class="streak-caption">連 續 達 標 之 火</div>
+
+      <div class="a1-checks">
+        <button class="chk-btn" data-a1="strength" aria-label="記錄今日力量訓練">
+          <span class="act-ico">💪</span>
+          <span class="act-name">力量訓練</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+        <button class="chk-btn" data-a1="cardio" aria-label="記錄今日帶氧運動">
+          <span class="act-ico">🏃</span>
+          <span class="act-name">帶氧運動</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+        <button class="chk-btn" data-a1="stretch" aria-label="記錄今日伸展柔軟">
+          <span class="act-ico">🧘</span>
+          <span class="act-name">伸展 / 柔軟</span>
+          <span class="act-xp">+3 XP</span>
+        </button>
+        <button class="chk-btn" data-a1="sugar" aria-label="記錄今日戒糖戒零食">
+          <span class="act-ico">🍎</span>
+          <span class="act-name">今日戒糖</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+      </div>
+      <div class="a1-done-msg" id="a1DoneMsg"></div>
+      <div class="a1-rule">每日達標條件：任兩項運動 ＋ 戒糖（達標加送 +10 XP）｜按錯可再按一次取消</div>
+    </div>
+
+    <div class="mile-card">
+      <div class="mile-head">
+        <span class="mile-title">築習里程碑</span>
+        <span class="mile-next" id="a1MileNext">距下一座里程碑 — 天</span>
+      </div>
+      <div class="mile-track"><div class="mile-fill" id="a1MileFill" style="width:0%"></div></div>
+      <div class="mile-marks"><span>7</span><span>21</span><span>66</span><span>100</span></div>
+      <div class="dots-row" id="a1Dots"></div>
+    </div>
+
+    <div class="badge-grid" id="a1BadgeGrid"></div>
+
+    <div class="life-stats">
+      <div class="life-h">修 行 總 覽</div>
+      <div class="life-row"><span>累計運動次數</span><span id="a1LifeTrain">0</span></div>
+      <div class="life-row"><span>累計戒糖日數</span><span id="a1LifeSugar">0</span></div>
+      <div class="life-row"><span>累計達標日數</span><span id="a1LifeMet">0</span></div>
+      <div class="life-row"><span>最長連勝紀錄</span><span id="a1LifeBest">0</span></div>
+      <div class="life-row"><span>本區 XP</span><span id="a1LifeXp">0</span></div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN: A2 ARTISTRY ================= -->
+  <section class="screen" id="screen-a2">
+    <div class="back-row">
+      <button class="back-btn" data-back>← 返回大廳</button>
+      <span class="area-tag">A2 · ARTISTRY</span>
+    </div>
+    <header>
+      <h1>藝境修行</h1>
+      <div class="subtitle">String &amp; Soul — 信任 Self 2，讓琴弦自己歌唱</div>
+    </header>
+
+    <div class="level-card">
+      <div class="level-row">
+        <span class="level-title" id="a2LevelTitle">初習樂徒</span>
+        <span class="level-num" id="a2LevelNum">LV.1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="a2XpFill" style="width:0%"></div></div>
+      <div class="xp-label" id="a2XpLabel">0 XP</div>
+    </div>
+
+    <div class="quest-card">
+      <div class="today-label" id="a2TodayLabel">—</div>
+      <div class="streak-hero">
+        <span style="font-size:34px">🔥</span>
+        <span class="streak-big" id="a2StreakBig">0</span>
+        <span class="streak-unit">天</span>
+      </div>
+      <div class="streak-caption">連 續 練 習 之 火</div>
+
+      <div class="main-bar-wrap">
+        <div class="main-bar-head">
+          <span class="main-bar-name">🎸 今日主修進度</span>
+          <span class="main-bar-num" id="a2MainNum">0 / 15 分鐘</span>
+        </div>
+        <div class="main-bar"><div class="main-bar-fill" id="a2MainFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="art-row main-art">
+        <div class="art-info">
+          <div class="art-name">🎸 Fingerstyle 結他 <span class="star">★ 主修</span></div>
+          <div class="art-min" id="a2min-guitar">今日 0 分鐘</div>
+        </div>
+        <div class="chips">
+          <button class="chip" data-a2="guitar" data-min="5">+5</button>
+          <button class="chip" data-a2="guitar" data-min="15">+15</button>
+          <button class="chip" data-a2="guitar" data-min="30">+30</button>
+        </div>
+      </div>
+      <div class="art-row">
+        <div class="art-info">
+          <div class="art-name">🎹 Jazz 鋼琴即興</div>
+          <div class="art-min" id="a2min-piano">今日 0 分鐘</div>
+        </div>
+        <div class="chips">
+          <button class="chip" data-a2="piano" data-min="5">+5</button>
+          <button class="chip" data-a2="piano" data-min="15">+15</button>
+          <button class="chip" data-a2="piano" data-min="30">+30</button>
+        </div>
+      </div>
+      <div class="art-row">
+        <div class="art-info">
+          <div class="art-name">✍️ 英文書法</div>
+          <div class="art-min" id="a2min-callig">今日 0 分鐘</div>
+        </div>
+        <div class="chips">
+          <button class="chip" data-a2="callig" data-min="5">+5</button>
+          <button class="chip" data-a2="callig" data-min="15">+15</button>
+          <button class="chip" data-a2="callig" data-min="30">+30</button>
+        </div>
+      </div>
+
+      <div class="a1-done-msg" id="a2DoneMsg"></div>
+      <div class="a1-rule">達標條件：主修結他 15 分鐘（達標加送 +10 XP）｜鋼琴與書法照加 XP，隨緣自在</div>
+      <div class="undo-row">
+        <button class="undo-btn" id="a2UndoBtn">↺ 復原上一筆</button>
+      </div>
+    </div>
+
+    <div class="mile-card">
+      <div class="mile-head">
+        <span class="mile-title">築習里程碑</span>
+        <span class="mile-next" id="a2MileNext">距下一座里程碑 — 天</span>
+      </div>
+      <div class="mile-track"><div class="mile-fill" id="a2MileFill" style="width:0%"></div></div>
+      <div class="mile-marks"><span>7</span><span>21</span><span>66</span><span>100</span></div>
+      <div class="dots-row" id="a2Dots"></div>
+    </div>
+
+    <div class="badge-grid" id="a2BadgeGrid"></div>
+
+    <div class="life-stats">
+      <div class="life-h">修 行 總 覽</div>
+      <div class="life-row"><span>結他累計分鐘</span><span id="a2LifeGuitar">0</span></div>
+      <div class="life-row"><span>鋼琴累計分鐘</span><span id="a2LifePiano">0</span></div>
+      <div class="life-row"><span>書法累計分鐘</span><span id="a2LifeCallig">0</span></div>
+      <div class="life-row"><span>累計達標日數</span><span id="a2LifeMet">0</span></div>
+      <div class="life-row"><span>最長連勝紀錄</span><span id="a2LifeBest">0</span></div>
+      <div class="life-row"><span>本區 XP</span><span id="a2LifeXp">0</span></div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN: A3 AUTISM AWESOME ================= -->
+  <section class="screen" id="screen-a3">
+    <div class="back-row">
+      <button class="back-btn" data-back>← 返回大廳</button>
+      <span class="area-tag">A3 · AUTISM AWESOME</span>
+    </div>
+    <header>
+      <h1>同行港灣</h1>
+      <div class="subtitle">Harbour Watch — 日日守望，週週同行</div>
+    </header>
+
+    <div class="level-card">
+      <div class="level-row">
+        <span class="level-title" id="a3LevelTitle">同行初心</span>
+        <span class="level-num" id="a3LevelNum">LV.1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="a3XpFill" style="width:0%"></div></div>
+      <div class="xp-label" id="a3XpLabel">0 XP</div>
+    </div>
+
+    <div class="son-card">
+      <div class="son-head">
+        <span class="son-name">軒</span>
+        <span class="son-week" id="a3wkwrap-hin">本週 <b id="a3wk-hin">0</b> / 3</span>
+      </div>
+      <div class="a3-btns">
+        <button class="chk-btn" data-a3son="hin" data-a3type="growth" aria-label="為軒記下進步之處">
+          <span class="act-ico">🌱</span>
+          <span class="act-name">進步之處</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+        <button class="chk-btn" data-a3son="hin" data-a3type="space" aria-label="為軒記下可進步空間">
+          <span class="act-ico">🧭</span>
+          <span class="act-name">可進步空間</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+      </div>
+      <div class="note-box" id="noteBox-hin" hidden>
+        <div class="note-label" id="noteLabel-hin"></div>
+        <textarea id="noteText-hin" rows="2" placeholder="寫下你觀察到的…（可留空直接記下）"></textarea>
+        <div class="note-actions">
+          <button class="copy-btn" data-a3save="hin">✓ 記下</button>
+          <button class="undo-btn" data-a3cancel="hin">取消</button>
+        </div>
+      </div>
+      <div class="entries" id="entries-hin"></div>
+    </div>
+
+    <div class="son-card">
+      <div class="son-head">
+        <span class="son-name">看山</span>
+        <span class="son-week" id="a3wkwrap-ks">本週 <b id="a3wk-ks">0</b> / 3</span>
+      </div>
+      <div class="a3-btns">
+        <button class="chk-btn" data-a3son="ks" data-a3type="growth" aria-label="為看山記下進步之處">
+          <span class="act-ico">🌱</span>
+          <span class="act-name">進步之處</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+        <button class="chk-btn" data-a3son="ks" data-a3type="space" aria-label="為看山記下可進步空間">
+          <span class="act-ico">🧭</span>
+          <span class="act-name">可進步空間</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+      </div>
+      <div class="note-box" id="noteBox-ks" hidden>
+        <div class="note-label" id="noteLabel-ks"></div>
+        <textarea id="noteText-ks" rows="2" placeholder="寫下你觀察到的…（可留空直接記下）"></textarea>
+        <div class="note-actions">
+          <button class="copy-btn" data-a3save="ks">✓ 記下</button>
+          <button class="undo-btn" data-a3cancel="ks">取消</button>
+        </div>
+      </div>
+      <div class="entries" id="entries-ks"></div>
+    </div>
+
+    <div class="undo-row">
+      <button class="undo-btn" id="a3UndoBtn">↺ 復原上一則紀錄</button>
+    </div>
+
+    <div class="mile-card">
+      <div class="mile-head">
+        <span class="mile-title">同行里程碑</span>
+        <span class="mile-next" id="a3MileNext">距下一座里程碑 — 次</span>
+      </div>
+      <div class="mile-track"><div class="mile-fill" id="a3MileFill" style="width:0%"></div></div>
+      <div class="mile-marks"><span>10</span><span>30</span><span>60</span><span>100</span></div>
+    </div>
+
+    <div class="badge-grid" id="a3BadgeGrid"></div>
+
+    <div class="life-stats">
+      <div class="life-h">守 望 總 覽</div>
+      <div class="life-row"><span>軒 · 累計紀錄</span><span id="a3LifeHin">0</span></div>
+      <div class="life-row"><span>看山 · 累計紀錄</span><span id="a3LifeKs">0</span></div>
+      <div class="life-row"><span>進步之處 🌱</span><span id="a3LifeGrowth">0</span></div>
+      <div class="life-row"><span>可進步空間 🧭</span><span id="a3LifeSpace">0</span></div>
+      <div class="life-row"><span>雙雙達標週數</span><span id="a3LifeWeeks">0</span></div>
+      <div class="life-row"><span>本區 XP</span><span id="a3LifeXp">0</span></div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN: A5 APPRENTICES OF JESUS ================= -->
+  <section class="screen" id="screen-a5">
+    <div class="back-row">
+      <button class="back-btn" data-back>← 返回大廳</button>
+      <span class="area-tag">A5 · APPRENTICES OF JESUS</span>
+    </div>
+    <header>
+      <h1>門徒之路</h1>
+      <div class="subtitle">The Way — 天天與主同在，週週與人同行</div>
+    </header>
+
+    <div class="level-card">
+      <div class="level-row">
+        <span class="level-title" id="a5LevelTitle">慕道初心</span>
+        <span class="level-num" id="a5LevelNum">LV.1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="a5XpFill" style="width:0%"></div></div>
+      <div class="xp-label" id="a5XpLabel">0 XP</div>
+    </div>
+
+    <div class="quest-card">
+      <div class="today-label" id="a5TodayLabel">—</div>
+      <div class="streak-hero">
+        <span style="font-size:34px">🕯️</span>
+        <span class="streak-big" id="a5StreakBig">0</span>
+        <span class="streak-unit">天</span>
+      </div>
+      <div class="streak-caption">連 續 靈 修 之 燈</div>
+
+      <div class="a1-checks" style="grid-template-columns:1fr 1fr">
+        <button class="chk-btn" data-a5="dev" aria-label="記錄今日靈修">
+          <span class="act-ico">🙏</span>
+          <span class="act-name">今日靈修</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+        <button class="chk-btn" data-a5walk="1" aria-label="記錄一次門徒同行">
+          <span class="act-ico">🤝</span>
+          <span class="act-name">門徒同行</span>
+          <span class="act-xp">+10 XP</span>
+        </button>
+      </div>
+
+      <div class="main-bar-wrap">
+        <div class="main-bar-head">
+          <span class="main-bar-name">🙏 本週靈修</span>
+          <span class="main-bar-num" id="a5WkDevNum">0 / 3 天</span>
+        </div>
+        <div class="main-bar"><div class="main-bar-fill" id="a5WkDevFill" style="width:0%"></div></div>
+      </div>
+      <div class="main-bar-wrap">
+        <div class="main-bar-head">
+          <span class="main-bar-name">🤝 本週同行</span>
+          <span class="main-bar-num" id="a5WkWalkNum">0 / 2 次</span>
+        </div>
+        <div class="main-bar"><div class="main-bar-fill" id="a5WkWalkFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="a1-done-msg" id="a5DoneMsg"></div>
+      <div class="a1-rule">每週達標條件：靈修 3 天 ＋ 同行 2 次（週達標加送 +20 XP）｜靈修按鈕可再按取消；同行按錯用復原</div>
+      <div class="undo-row">
+        <button class="undo-btn" id="a5UndoBtn">↺ 復原上一次同行</button>
+      </div>
+    </div>
+
+    <div class="mile-card">
+      <div class="mile-head">
+        <span class="mile-title">靈修里程碑（連續天數）</span>
+        <span class="mile-next" id="a5MileDevNext">距下一座里程碑 — 天</span>
+      </div>
+      <div class="mile-track"><div class="mile-fill" id="a5MileDevFill" style="width:0%"></div></div>
+      <div class="mile-marks"><span>7</span><span>40</span><span>100</span></div>
+      <div class="dots-row" id="a5Dots"></div>
+    </div>
+
+    <div class="mile-card">
+      <div class="mile-head">
+        <span class="mile-title">同行里程碑（累積次數）</span>
+        <span class="mile-next" id="a5MileWalkNext">距下一座里程碑 — 次</span>
+      </div>
+      <div class="mile-track"><div class="mile-fill" id="a5MileWalkFill" style="width:0%"></div></div>
+      <div class="mile-marks"><span>10</span><span>30</span><span>60</span><span>100</span></div>
+    </div>
+
+    <div class="badge-grid" id="a5BadgeGrid"></div>
+
+    <div class="life-stats">
+      <div class="life-h">靈 程 總 覽</div>
+      <div class="life-row"><span>累計靈修日數</span><span id="a5LifeDev">0</span></div>
+      <div class="life-row"><span>累計同行次數</span><span id="a5LifeWalk">0</span></div>
+      <div class="life-row"><span>最長連續靈修</span><span id="a5LifeBest">0</span></div>
+      <div class="life-row"><span>週達標次數</span><span id="a5LifeWeeks">0</span></div>
+      <div class="life-row"><span>本區 XP</span><span id="a5LifeXp">0</span></div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN: A6 AUTHORSHIP ================= -->
+  <section class="screen" id="screen-a6">
+    <div class="back-row">
+      <button class="back-btn" data-back>← 返回大廳</button>
+      <span class="area-tag">A6 · AUTHORSHIP</span>
+    </div>
+    <header>
+      <h1>著述傳承</h1>
+      <div class="subtitle">The Scribe's Legacy — 週週兩篇，筆耕不輟</div>
+    </header>
+
+    <div class="level-card">
+      <div class="level-row">
+        <span class="level-title" id="a6LevelTitle">執筆學徒</span>
+        <span class="level-num" id="a6LevelNum">LV.1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="a6XpFill" style="width:0%"></div></div>
+      <div class="xp-label" id="a6XpLabel">0 XP</div>
+    </div>
+
+    <div class="quest-card">
+      <div class="today-label" id="a6TodayLabel">—</div>
+      <div class="streak-hero">
+        <span style="font-size:34px">📜</span>
+        <span class="streak-big" id="a6StreakBig">0</span>
+        <span class="streak-unit">週</span>
+      </div>
+      <div class="streak-caption">連 續 達 標 週 數</div>
+
+      <div class="a1-checks" style="grid-template-columns:1fr">
+        <button class="chk-btn" id="a6PubBtn" aria-label="記錄一次發布">
+          <span class="act-ico">✍️</span>
+          <span class="act-name">發布一篇（LinkedIn / Blog / 其他）</span>
+          <span class="act-xp">+15 XP</span>
+        </button>
+      </div>
+
+      <div class="main-bar-wrap">
+        <div class="main-bar-head">
+          <span class="main-bar-name">📄 本週發布</span>
+          <span class="main-bar-num" id="a6WkNum">0 / 2 篇</span>
+        </div>
+        <div class="main-bar"><div class="main-bar-fill" id="a6WkFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="a1-done-msg" id="a6DoneMsg"></div>
+      <div class="a1-rule">每週達標條件：發布 2 篇（週達標加送 +20 XP）｜按錯用復原</div>
+      <div class="undo-row">
+        <button class="undo-btn" id="a6UndoBtn">↺ 復原上一篇</button>
+      </div>
+    </div>
+
+    <div class="mile-card">
+      <div class="mile-head">
+        <span class="mile-title">筆耕里程碑（連續週數）</span>
+        <span class="mile-next" id="a6MileNext">距下一座里程碑 — 週</span>
+      </div>
+      <div class="mile-track"><div class="mile-fill" id="a6MileFill" style="width:0%"></div></div>
+      <div class="mile-marks"><span>4</span><span>12</span><span>26</span><span>52</span></div>
+      <div class="dots-row" id="a6Dots"></div>
+    </div>
+
+    <div class="badge-grid" id="a6BadgeGrid"></div>
+
+    <div class="life-stats">
+      <div class="life-h">著 述 總 覽</div>
+      <div class="life-row"><span>累計發布篇數</span><span id="a6LifePosts">0</span></div>
+      <div class="life-row"><span>週達標次數</span><span id="a6LifeWeeks">0</span></div>
+      <div class="life-row"><span>最長連續週數</span><span id="a6LifeBest">0</span></div>
+      <div class="life-row"><span>本區 XP</span><span id="a6LifeXp">0</span></div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN: A7 URBAN FARMING ================= -->
+  <section class="screen" id="screen-a7">
+    <div class="back-row">
+      <button class="back-btn" data-back>← 返回大廳</button>
+      <span class="area-tag">A7 · ABUNDANCE URBAN FARMING</span>
+    </div>
+    <header>
+      <h1>豐盛田園</h1>
+      <div class="subtitle">The Garden Keeper — 栽種有時，澆灌有時</div>
+    </header>
+
+    <div class="level-card">
+      <div class="level-row">
+        <span class="level-title" id="a7LevelTitle">播種初心</span>
+        <span class="level-num" id="a7LevelNum">LV.1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="a7XpFill" style="width:0%"></div></div>
+      <div class="xp-label" id="a7XpLabel">0 XP</div>
+    </div>
+
+    <div class="quest-card">
+      <div class="today-label" id="a7TodayLabel">—</div>
+      <div class="streak-hero">
+        <span style="font-size:34px">🌿</span>
+        <span class="streak-big" id="a7StreakBig">0</span>
+        <span class="streak-unit">天</span>
+      </div>
+      <div class="streak-caption">連 續 照 料 天 數</div>
+
+      <div class="a1-checks" style="grid-template-columns:1fr 1fr">
+        <button class="chk-btn" data-a7="labor" aria-label="記錄一次田間勞作">
+          <span class="act-ico">🌱</span>
+          <span class="act-name">田間勞作</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+        <button class="chk-btn" data-a7="study" aria-label="記錄一次學習研究">
+          <span class="act-ico">📖</span>
+          <span class="act-name">學習研究</span>
+          <span class="act-xp">+5 XP</span>
+        </button>
+      </div>
+
+      <div class="main-bar-wrap">
+        <div class="main-bar-head">
+          <span class="main-bar-name">🌱 本週勞作</span>
+          <span class="main-bar-num" id="a7WkLaborNum">0 / 2 次</span>
+        </div>
+        <div class="main-bar"><div class="main-bar-fill" id="a7WkLaborFill" style="width:0%"></div></div>
+      </div>
+      <div class="main-bar-wrap">
+        <div class="main-bar-head">
+          <span class="main-bar-name">📖 本週研習</span>
+          <span class="main-bar-num" id="a7WkStudyNum">0 / 1 次</span>
+        </div>
+        <div class="main-bar"><div class="main-bar-fill" id="a7WkStudyFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="a1-done-msg" id="a7DoneMsg"></div>
+      <div class="a1-rule">每週達標條件：勞作 2 次 ＋ 研習 1 次（週達標加送 +20 XP）｜連續照料只計田間勞作｜按錯用復原</div>
+      <div class="undo-row">
+        <button class="undo-btn" id="a7UndoBtn">↺ 復原上一筆</button>
+      </div>
+    </div>
+
+    <div class="mile-card">
+      <div class="mile-head">
+        <span class="mile-title">照料里程碑（連續天數）</span>
+        <span class="mile-next" id="a7MileNext">距下一座里程碑 — 天</span>
+      </div>
+      <div class="mile-track"><div class="mile-fill" id="a7MileFill" style="width:0%"></div></div>
+      <div class="mile-marks"><span>7</span><span>21</span><span>66</span><span>100</span></div>
+      <div class="dots-row" id="a7Dots"></div>
+    </div>
+
+    <div class="badge-grid" id="a7BadgeGrid"></div>
+
+    <div class="life-stats">
+      <div class="life-h">耕 耘 總 覽</div>
+      <div class="life-row"><span>累計勞作次數</span><span id="a7LifeLabor">0</span></div>
+      <div class="life-row"><span>累計研習次數</span><span id="a7LifeStudy">0</span></div>
+      <div class="life-row"><span>最長連續照料</span><span id="a7LifeBest">0</span></div>
+      <div class="life-row"><span>週達標次數</span><span id="a7LifeWeeks">0</span></div>
+      <div class="life-row"><span>本區 XP</span><span id="a7LifeXp">0</span></div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN: A4 DENTAL QUEST ================= -->
+  <section class="screen" id="screen-a4">
+    <div class="back-row">
+      <button class="back-btn" data-back>← 返回大廳</button>
+      <span class="area-tag">A4 · AMBROSE ADVISORY</span>
+    </div>
+    <header>
+      <h1>百戰行動</h1>
+      <div class="subtitle">Dental Quest 100 — 每日一百次接觸的英雄之旅</div>
+    </header>
+
+    <div class="level-card">
+      <div class="level-row">
+        <span class="level-title" id="levelTitle">見習同行者</span>
+        <span class="level-num" id="levelNum">LV.1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+      <div class="xp-label" id="xpLabel">0 XP</div>
+    </div>
+
+    <!-- A4 TAB 1 出征 -->
+    <div class="panel active" id="panel-quest">
+      <div class="quest-card">
+        <div class="today-label" id="todayLabel">—</div>
+        <div class="ring-box">
+          <svg width="220" height="220" viewBox="0 0 220 220" aria-hidden="true">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#8C7327"/>
+                <stop offset="55%" stop-color="#D4AF37"/>
+                <stop offset="100%" stop-color="#F0D583"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="110" cy="110" r="96"/>
+            <circle class="ring-ticks" cx="110" cy="110" r="96"/>
+            <circle class="ring-fg" id="ringFg" cx="110" cy="110" r="96"
+                    stroke-dasharray="603.19" stroke-dashoffset="603.19"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-count" id="ringCount">0</div>
+            <div class="ring-goal">/ 100 次接觸</div>
+            <div class="ring-done" id="ringDone"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="act-btn" data-act="dm" aria-label="記錄一次發送訊息">
+            <span class="act-ico">✉️</span>
+            <span class="act-name">發送訊息</span>
+            <span class="act-xp">+3 XP</span>
+            <span class="act-count" id="cnt-dm">今日 0</span>
+          </button>
+          <button class="act-btn" data-act="comment" aria-label="記錄一次留言互動">
+            <span class="act-ico">💬</span>
+            <span class="act-name">留言互動</span>
+            <span class="act-xp">+2 XP</span>
+            <span class="act-count" id="cnt-comment">今日 0</span>
+          </button>
+          <button class="act-btn" data-act="follow" aria-label="記錄一次追蹤或按讚專頁">
+            <span class="act-ico">⭐</span>
+            <span class="act-name">追蹤 / 讚</span>
+            <span class="act-xp">+1 XP</span>
+            <span class="act-count" id="cnt-follow">今日 0</span>
+          </button>
+        </div>
+
+        <div class="funnel-title">戰 果 回 報</div>
+        <div class="funnel">
+          <button class="fun-btn" data-act="response" aria-label="記錄一次獲得回應">
+            <span class="act-ico">🔥</span>
+            <span class="act-name">獲得回應</span>
+            <span class="act-xp">+10 XP</span>
+            <span class="act-count" id="cnt-response">今日 0</span>
+          </button>
+          <button class="fun-btn" data-act="booking" aria-label="記錄一次預約通話">
+            <span class="act-ico">🗓️</span>
+            <span class="act-name">預約通話</span>
+            <span class="act-xp">+50 XP</span>
+            <span class="act-count" id="cnt-booking">今日 0</span>
+          </button>
+          <button class="fun-btn" data-act="close" aria-label="記錄一次成交">
+            <span class="act-ico">🏆</span>
+            <span class="act-name">成交！</span>
+            <span class="act-xp">+200 XP</span>
+            <span class="act-count" id="cnt-close">今日 0</span>
+          </button>
+        </div>
+
+        <div class="undo-row">
+          <button class="undo-btn" id="undoBtn">↺ 復原上一筆</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- A4 TAB 2 週戰役 -->
+    <div class="panel" id="panel-week">
+      <div class="week-card">
+        <div class="week-head">
+          <span class="week-title">本週戰役</span>
+          <span class="streak-chip">🔥 連勝 <span id="streakNum">0</span> 日</span>
+        </div>
+        <div id="weekRows"></div>
+        <div class="week-total">本週合計 <strong id="weekTotal">0</strong> / 500 次接觸</div>
+        <div class="funnel-stats">
+          <div class="fs-cell"><div class="fs-num" id="wkTouch">0</div><div class="fs-lab">接觸</div></div>
+          <div class="fs-cell"><div class="fs-num" id="wkResp">0</div><div class="fs-lab">回應</div></div>
+          <div class="fs-cell"><div class="fs-num" id="wkBook">0</div><div class="fs-lab">預約</div></div>
+          <div class="fs-cell"><div class="fs-num" id="wkClose">0</div><div class="fs-lab">成交</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A4 TAB 3 報價卷軸 -->
+    <div class="panel" id="panel-scroll">
+      <div class="scroll-card">
+        <div class="scroll-h">診所減負系統</div>
+        <div class="scroll-sub">THE PRACTICE RELIEF SYSTEM™</div>
+        <div class="offer-line"><span class="offer-key">夢想成果</span><span class="offer-val">每週為診所奪回 <em>10+ 小時</em> 行政時間；UDA 進度與 NHS clawback 風險<em>即時可視</em>，不再年底才發現黑洞。</span></div>
+        <div class="offer-line"><span class="offer-key">可信度</span><span class="offer-val"><em>40 年 KPMG 訓練 CPA</em> × Claude AI 實戰導入——市場上極少有人同時懂 NHS 合約財務與 AI 落地。</span></div>
+        <div class="offer-line"><span class="offer-key">見效時間</span><span class="offer-val"><em>30 天內</em>看見第一批省下的工時。</span></div>
+        <div class="offer-line"><span class="offer-key">客戶付出</span><span class="offer-val">我方全程導入，診所團隊每週只需 <em>1 小時</em>配合。</span></div>
+        <div class="offer-line"><span class="offer-key">保證</span><span class="offer-val">30 天內未省下至少 5 小時/週 → <em>免費延長服務直到達成</em>。風險在我，不在你。</span></div>
+        <div class="offer-line"><span class="offer-key">獎金堆疊</span><span class="offer-val">① UDA / clawback 追蹤儀表板 ② 病人 FAQ 的 AI 回覆範本庫 ③ 免費「診所 AI 健檢」④ 90 天 WhatsApp 同行支援。</span></div>
+        <div class="offer-line"><span class="offer-key">稀缺性</span><span class="offer-val">因親自導入，<em>每月僅收 5 間診所</em>。</span></div>
+      </div>
+
+      <div class="scroll-card">
+        <div class="scroll-h">冷聯繫劍譜 · Script A</div>
+        <div class="scroll-sub">FIRST TOUCH — COLD DM</div>
+        <div class="script-box" id="scriptA">Hi [Name], I came across [Clinic]'s page — really like how you [specific detail, e.g. explain treatments so clearly].
+
+Quick question: how much of your team's week goes into admin like recalls, UDA tracking and patient FAQs?
+
+I help UK dental practices reclaim 10+ hours a week using AI — and as a chartered accountant of 40 years, NHS clawback tracking is home turf for me.
+
+Worth a 15-minute chat? If not, no worries at all — keep up the great work.</div>
+        <button class="copy-btn" data-copy="scriptA">📋 複製 Script A</button>
+      </div>
+
+      <div class="scroll-card">
+        <div class="scroll-h">冷聯繫劍譜 · Script B</div>
+        <div class="scroll-sub">FOLLOW-UP — DAY 3</div>
+        <div class="script-box" id="scriptB">Hi [Name], just floating this back up.
+
+One thing I'm offering this month to 5 practices only: a free AI "admin health check" — I'll map exactly where your team loses hours each week, and where NHS clawback risk is hiding.
+
+Zero obligation, and you keep the findings either way. Interested?</div>
+        <button class="copy-btn" data-copy="scriptB">📋 複製 Script B</button>
+        <div class="scroll-note">⚔️ 出征守則：每則訊息必須包含一句「針對該診所」的個人化開場（[specific detail]）。切勿原文連發——Facebook 會限制大量重複訊息；以「留言互動 → 追蹤 → 訊息」混合出擊，先暖後冷。</div>
+      </div>
+    </div>
+
+    <!-- A4 TAB 4 成就 -->
+    <div class="panel" id="panel-badges">
+      <div class="badge-grid" id="badgeGrid"></div>
+      <div class="life-stats">
+        <div class="life-h">征 途 總 覽</div>
+        <div class="life-row"><span>累計接觸</span><span id="lifeTouch">0</span></div>
+        <div class="life-row"><span>累計回應</span><span id="lifeResp">0</span></div>
+        <div class="life-row"><span>累計預約</span><span id="lifeBook">0</span></div>
+        <div class="life-row"><span>累計成交</span><span id="lifeClose">0</span></div>
+        <div class="life-row"><span>達標日數（100+）</span><span id="lifeFullDays">0</span></div>
+        <div class="life-row"><span>本區 XP</span><span id="lifeXp">0</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<nav id="a4nav">
+  <button class="tab-btn active" data-tab="quest"><span class="ico">⚔️</span>出征</button>
+  <button class="tab-btn" data-tab="week"><span class="ico">🛡️</span>週戰役</button>
+  <button class="tab-btn" data-tab="scroll"><span class="ico">📜</span>報價卷軸</button>
+  <button class="tab-btn" data-tab="badges"><span class="ico">🏅</span>成就</button>
+</nav>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= 7A Areas ================= */
+var AREAS = [
+  {id:"a1", code:"A1", ico:"🏃", name:"康健之道", en:"Aging Well",
+   desc:"力量・帶氧・伸展・戒糖——為八年的第二使命，鍛造一副能走遠路的身體。", live:true},
+  {id:"a2", code:"A2", ico:"🎸", name:"藝境修行", en:"Artistry",
+   desc:"主修 Fingerstyle 結他，Jazz 鋼琴與英文書法隨緣同行——讓 Self 2 自由歌唱。", live:true},
+  {id:"a3", code:"A3", ico:"💙", name:"同行港灣", en:"Autism Awesome",
+   desc:"為軒與看山的每日守望——記下進步之處，看見可進步的空間，每週三次同行。", live:true},
+  {id:"a4", code:"A4", ico:"⚔️", name:"百戰行動", en:"Ambrose Advisory",
+   desc:"每日 100 次接觸的獲客征途。", live:true},
+  {id:"a5", code:"A5", ico:"✝️", name:"門徒之路", en:"Apprentices of Jesus",
+   desc:"天天與主同在（靈修），週週與人同行（門訓）——雙軌並行的屬靈旅程。", live:true},
+  {id:"a6", code:"A6", ico:"✍️", name:"著述傳承", en:"Authorship",
+   desc:"每週兩篇發布，週週不輟——把四十年的智慧化為文字留給後人。", live:true},
+  {id:"a7", code:"A7", ico:"🌱", name:"豐盛田園", en:"Abundance Urban Farming",
+   desc:"每週兩次動手耕耘、一次農謀研習——與兒子們的未來社區連結的豐盛之地。", live:true}
+];
+
+/* ================= A4 Config ================= */
+var GOAL = 100;
+var XP_MAP = {dm:3, comment:2, follow:1, response:10, booking:50, close:200};
+var TOUCH_ACTS = {dm:1, comment:1, follow:1};
+var ACT_NAMES = {dm:"發送訊息", comment:"留言互動", follow:"追蹤/讚", response:"獲得回應", booking:"預約通話", close:"成交"};
+
+var A4_LEVELS = [
+  {xp:0,     title:"見習同行者"},
+  {xp:300,   title:"街巷信使"},
+  {xp:800,   title:"破冰騎士"},
+  {xp:1600,  title:"百戰劍士"},
+  {xp:3000,  title:"圓桌策士"},
+  {xp:5000,  title:"屠龍顧問"},
+  {xp:8000,  title:"黃金同行者"},
+  {xp:12000, title:"傳說 · 減負宗師"}
+];
+
+var HUB_LEVELS = [
+  {xp:0,     title:"七域見習者"},
+  {xp:500,   title:"啟程旅人"},
+  {xp:1500,  title:"七域行者"},
+  {xp:3500,  title:"均衡守望者"},
+  {xp:7000,  title:"七域騎士"},
+  {xp:12000, title:"生命策士"},
+  {xp:20000, title:"七域宗師"},
+  {xp:30000, title:"傳說 · 第二使命"}
+];
+
+var BADGES = [
+  {id:"first_touch",  ico:"🗡️", name:"初次出征",   desc:"記錄第一次接觸"},
+  {id:"first_100",    ico:"💯", name:"百人斬",     desc:"單日達成 100 次接觸"},
+  {id:"perfect_week", ico:"🛡️", name:"完美一週",   desc:"週一至週五全部達標"},
+  {id:"first_resp",   ico:"🔥", name:"破冰者",     desc:"獲得第一個回應"},
+  {id:"first_book",   ico:"🗓️", name:"圓桌之約",   desc:"預約第一通電話"},
+  {id:"first_close",  ico:"🏆", name:"屠龍者",     desc:"拿下第一筆成交"},
+  {id:"touch_1000",   ico:"⚔️", name:"千錘百鍊",   desc:"累計 1,000 次接觸"},
+  {id:"touch_5000",   ico:"👑", name:"五千大軍",   desc:"累計 5,000 次接觸"},
+  {id:"streak_5",     ico:"🔥", name:"連勝之火",   desc:"連續 5 個工作日達標"},
+  {id:"streak_10",    ico:"🌟", name:"十日連勝",   desc:"連續 10 個工作日達標"}
+];
+
+/* ================= A1 Config ================= */
+var A1_XP = {strength:5, cardio:5, stretch:3, sugar:5};
+var A1_NAMES = {strength:"力量訓練", cardio:"帶氧運動", stretch:"伸展/柔軟", sugar:"今日戒糖"};
+var A1_DAILY_BONUS = 10;
+var A1_MILES = [7,21,66,100];
+var A1_MILE_XP = {7:50, 21:150, 66:500, 100:1000};
+
+var A1_LEVELS = [
+  {xp:0,    title:"初心行者"},
+  {xp:200,  title:"晨光修士"},
+  {xp:600,  title:"康健騎士"},
+  {xp:1400, title:"不老劍客"},
+  {xp:2800, title:"長青武者"},
+  {xp:5000, title:"淬鍊宗師"},
+  {xp:8000, title:"傳說 · 頤養真人"}
+];
+
+var A1_BADGES = [
+  {id:"a1_first",    ico:"🌅", name:"初次鍛鍊",   desc:"記錄第一次修行"},
+  {id:"a1_triple",   ico:"⚡", name:"三項全能",   desc:"單日完成力量＋帶氧＋伸展"},
+  {id:"a1_s7",       ico:"🔥", name:"七日之約",   desc:"連續 7 天達標"},
+  {id:"a1_s21",      ico:"🦋", name:"破繭而出",   desc:"連續 21 天達標"},
+  {id:"a1_s66",      ico:"🏯", name:"六六築習",   desc:"連續 66 天——習慣煉成"},
+  {id:"a1_s100",     ico:"⛰️", name:"百日築基",   desc:"連續 100 天達標"},
+  {id:"a1_sugar30",  ico:"🍎", name:"戒糖勇士",   desc:"累計 30 個戒糖日"},
+  {id:"a1_train100", ico:"🛡️", name:"鐵人之軀",   desc:"累計 100 次運動紀錄"}
+];
+
+/* ================= A2 Config ================= */
+var A2_GOAL_MIN = 15;              // main art daily goal (guitar)
+var A2_DAILY_BONUS = 10;
+var A2_ARTS = {guitar:"Fingerstyle 結他", piano:"Jazz 鋼琴", callig:"英文書法"};
+var A2_MILES = [7,21,66,100];
+var A2_MILE_XP = {7:50, 21:150, 66:500, 100:1000};
+
+var A2_LEVELS = [
+  {xp:0,    title:"初習樂徒"},
+  {xp:200,  title:"撫弦見習"},
+  {xp:600,  title:"琴道行者"},
+  {xp:1400, title:"弦音騎士"},
+  {xp:2800, title:"即興劍客"},
+  {xp:5000, title:"藝境宗師"},
+  {xp:8000, title:"傳說 · 樂墨真人"}
+];
+
+var A2_BADGES = [
+  {id:"a2_first",      ico:"🎸", name:"初撫琴弦",   desc:"記錄第一次練習"},
+  {id:"a2_s7",         ico:"🔥", name:"七日琴心",   desc:"連續 7 天達標"},
+  {id:"a2_s21",        ico:"🦋", name:"弦上破繭",   desc:"連續 21 天達標"},
+  {id:"a2_s66",        ico:"🏯", name:"六六成藝",   desc:"連續 66 天——琴道已成"},
+  {id:"a2_s100",       ico:"⛰️", name:"百日琴道",   desc:"連續 100 天達標"},
+  {id:"a2_triple",     ico:"🎨", name:"三藝同輝",   desc:"單日三藝皆有練習"},
+  {id:"a2_guitar1000", ico:"🛡️", name:"千分鐘之弦", desc:"結他累計 1,000 分鐘"},
+  {id:"a2_side300",    ico:"🖋️", name:"墨鍵雙修",   desc:"鋼琴與書法各累計 300 分鐘"}
+];
+
+/* ================= A3 Config ================= */
+var A3_ENTRY_XP = 5;
+var A3_WEEK_GOAL = 3;          // per son, per week
+var A3_WEEK_BONUS = 15;        // per son on reaching weekly goal
+var A3_SONS = {hin:"軒", ks:"看山"};
+var A3_TYPES = {growth:{ico:"🌱", name:"進步之處"}, space:{ico:"🧭", name:"可進步空間"}};
+var A3_MILES = [10,30,60,100];
+var A3_MILE_XP = {10:50, 30:150, 60:300, 100:1000};
+
+var A3_LEVELS = [
+  {xp:0,    title:"同行初心"},
+  {xp:200,  title:"港灣守望"},
+  {xp:600,  title:"燈塔看守"},
+  {xp:1400, title:"同行騎士"},
+  {xp:2800, title:"港灣建造者"},
+  {xp:5000, title:"守望宗師"},
+  {xp:8000, title:"傳說 · 永恆港灣"}
+];
+
+var A3_BADGES = [
+  {id:"a3_first",    ico:"💙", name:"初次同行",   desc:"記錄第一則守望"},
+  {id:"a3_both",     ico:"🤝", name:"雙星同輝",   desc:"同一日為兩位都記錄"},
+  {id:"a3_growth10", ico:"🌱", name:"恩典獵人",   desc:"累計 10 則進步之處"},
+  {id:"a3_space10",  ico:"🧭", name:"開路者",     desc:"累計 10 則可進步空間"},
+  {id:"a3_w4",       ico:"📅", name:"四週守望",   desc:"連續 4 週雙雙達標"},
+  {id:"a3_hin50",    ico:"⭐", name:"軒之五十",   desc:"為軒累計 50 則紀錄"},
+  {id:"a3_ks50",     ico:"⭐", name:"看山五十",   desc:"為看山累計 50 則紀錄"},
+  {id:"a3_100",      ico:"⛰️", name:"百次同行",   desc:"累計 100 則守望紀錄"}
+];
+
+/* ================= A5 Config ================= */
+var A5_DEV_XP = 5;
+var A5_WALK_XP = 10;
+var A5_WEEK_DEV_GOAL = 3;
+var A5_WEEK_WALK_GOAL = 2;
+var A5_WEEK_BONUS = 20;
+var A5_DEV_MILES = [7,40,100];
+var A5_DEV_MILE_XP = {7:50, 40:300, 100:1000};
+var A5_WALK_MILES = [10,30,60,100];
+var A5_WALK_MILE_XP = {10:50, 30:150, 60:300, 100:1000};
+
+var A5_LEVELS = [
+  {xp:0,    title:"慕道初心"},
+  {xp:200,  title:"靈程學徒"},
+  {xp:600,  title:"同行門徒"},
+  {xp:1400, title:"燈臺看守"},
+  {xp:2800, title:"牧人之心"},
+  {xp:5000, title:"屬靈父老"},
+  {xp:8000, title:"傳說 · 忠心良僕"}
+];
+
+var A5_BADGES = [
+  {id:"a5_first",   ico:"🙏", name:"初嘗靈糧",   desc:"記錄第一次靈修"},
+  {id:"a5_s7",      ico:"🕯️", name:"七日安息",   desc:"連續靈修 7 天"},
+  {id:"a5_s40",     ico:"🏜️", name:"曠野四十",   desc:"連續靈修 40 天"},
+  {id:"a5_s100",    ico:"⛰️", name:"百日同在",   desc:"連續靈修 100 天"},
+  {id:"a5_walk1",   ico:"🤝", name:"首次同行",   desc:"記錄第一次門徒同行"},
+  {id:"a5_walk10",  ico:"🌾", name:"十次同行",   desc:"累計 10 次門徒同行"},
+  {id:"a5_walk100", ico:"👣", name:"百次同行",   desc:"累計 100 次門徒同行"},
+  {id:"a5_w4",      ico:"📅", name:"四週忠心",   desc:"連續 4 週雙達標"}
+];
+
+/* ================= A6 Config ================= */
+var A6_POST_XP = 15;
+var A6_WEEK_GOAL = 2;
+var A6_WEEK_BONUS = 20;
+var A6_MILES = [4,12,26,52];   // consecutive weeks
+var A6_MILE_XP = {4:50, 12:200, 26:500, 52:1500};
+
+var A6_LEVELS = [
+  {xp:0,    title:"執筆學徒"},
+  {xp:200,  title:"墨香行者"},
+  {xp:600,  title:"筆耕騎士"},
+  {xp:1400, title:"專欄劍客"},
+  {xp:2800, title:"著述策士"},
+  {xp:5000, title:"出版宗師"},
+  {xp:8000, title:"傳說 · 傳承之筆"}
+];
+
+var A6_BADGES = [
+  {id:"a6_first", ico:"✍️", name:"初試啼聲",   desc:"發布第一篇作品"},
+  {id:"a6_w4",    ico:"🔥", name:"四週筆耕",   desc:"連續 4 週達標"},
+  {id:"a6_w12",   ico:"🏯", name:"一季不輟",   desc:"連續 12 週達標"},
+  {id:"a6_w26",   ico:"🌗", name:"半載成書",   desc:"連續 26 週達標"},
+  {id:"a6_w52",   ico:"👑", name:"週年傳承",   desc:"連續 52 週——整年筆耕"},
+  {id:"a6_p10",   ico:"📄", name:"十篇之始",   desc:"累計發布 10 篇"},
+  {id:"a6_p50",   ico:"📚", name:"五十鴻文",   desc:"累計發布 50 篇"},
+  {id:"a6_p100",  ico:"⛰️", name:"百篇傳世",   desc:"累計發布 100 篇"}
+];
+
+/* ================= A7 Config ================= */
+var A7_ACT_XP = 5;
+var A7_WEEK_LABOR_GOAL = 2;
+var A7_WEEK_STUDY_GOAL = 1;
+var A7_WEEK_BONUS = 20;
+var A7_NAMES = {labor:"田間勞作", study:"學習研究"};
+var A7_MILES = [7,21,66,100];
+var A7_MILE_XP = {7:50, 21:150, 66:500, 100:1000};
+
+var A7_LEVELS = [
+  {xp:0,    title:"播種初心"},
+  {xp:200,  title:"灌溉學徒"},
+  {xp:600,  title:"園圃行者"},
+  {xp:1400, title:"耕耘騎士"},
+  {xp:2800, title:"田園策士"},
+  {xp:5000, title:"豐收宗師"},
+  {xp:8000, title:"傳說 · 伊甸園丁"}
+];
+
+var A7_BADGES = [
+  {id:"a7_first",   ico:"🌱", name:"破土之日",   desc:"記錄第一次耕耘"},
+  {id:"a7_s7",      ico:"🔥", name:"七日灌溉",   desc:"連續照料 7 天"},
+  {id:"a7_s21",     ico:"🦋", name:"廿一日生根", desc:"連續照料 21 天"},
+  {id:"a7_s66",     ico:"🏯", name:"六六成蔭",   desc:"連續照料 66 天"},
+  {id:"a7_s100",    ico:"⛰️", name:"百日豐盛",   desc:"連續照料 100 天"},
+  {id:"a7_study10", ico:"📖", name:"農謀十卷",   desc:"累計 10 次研習"},
+  {id:"a7_labor50", ico:"💪", name:"五十耕耘",   desc:"累計 50 次勞作"},
+  {id:"a7_w4",      ico:"📅", name:"四週園丁",   desc:"連續 4 週雙達標"}
+];
+
+/* ================= State (v2 schema, with migration) ================= */
+var KEY_V2 = "sevenAQuest_v2";
+var KEY_V1 = "dentalQuest100_v1";
+var state = load();
+
+function emptyA4(){ return {days:{}, xp:0, badges:[], undo:[], lastBackup:null}; }
+function emptyA1(){ return {days:{}, xp:0, badges:[]}; }
+function emptyA2(){ return {days:{}, xp:0, badges:[], undo:[]}; }
+function emptyA3(){ return {entries:[], xp:0, badges:[], weekBonus:{}}; }
+function emptyA5(){ return {days:{}, walks:[], xp:0, badges:[], weekBonus:{}}; }
+function emptyA6(){ return {posts:[], xp:0, badges:[], weekBonus:{}}; }
+function emptyA7(){ return {entries:[], xp:0, badges:[], weekBonus:{}}; }
+function emptyState(){
+  return {version:2, lastBackup:null, areas:{
+    a1:emptyA1(), a2:emptyA2(), a3:emptyA3(), a4:emptyA4(), a5:emptyA5(), a6:emptyA6(), a7:emptyA7()
+  }};
+}
+function normalize(s){
+  if(!s.areas.a1) s.areas.a1 = emptyA1();
+  if(!s.areas.a1.days) s.areas.a1.days = {};
+  if(!s.areas.a1.badges) s.areas.a1.badges = [];
+  if(typeof s.areas.a1.xp!=="number") s.areas.a1.xp = 0;
+  if(!s.areas.a2) s.areas.a2 = emptyA2();
+  if(!s.areas.a2.days) s.areas.a2.days = {};
+  if(!s.areas.a2.badges) s.areas.a2.badges = [];
+  if(!s.areas.a2.undo) s.areas.a2.undo = [];
+  if(typeof s.areas.a2.xp!=="number") s.areas.a2.xp = 0;
+  if(!s.areas.a3) s.areas.a3 = emptyA3();
+  if(!s.areas.a3.entries) s.areas.a3.entries = [];
+  if(!s.areas.a3.badges) s.areas.a3.badges = [];
+  if(!s.areas.a3.weekBonus) s.areas.a3.weekBonus = {};
+  if(typeof s.areas.a3.xp!=="number") s.areas.a3.xp = 0;
+  if(!s.areas.a5) s.areas.a5 = emptyA5();
+  if(!s.areas.a5.days) s.areas.a5.days = {};
+  if(!s.areas.a5.walks) s.areas.a5.walks = [];
+  if(!s.areas.a5.badges) s.areas.a5.badges = [];
+  if(!s.areas.a5.weekBonus) s.areas.a5.weekBonus = {};
+  if(typeof s.areas.a5.xp!=="number") s.areas.a5.xp = 0;
+  if(!s.areas.a6) s.areas.a6 = emptyA6();
+  if(!s.areas.a6.posts) s.areas.a6.posts = [];
+  if(!s.areas.a6.badges) s.areas.a6.badges = [];
+  if(!s.areas.a6.weekBonus) s.areas.a6.weekBonus = {};
+  if(typeof s.areas.a6.xp!=="number") s.areas.a6.xp = 0;
+  if(!s.areas.a7) s.areas.a7 = emptyA7();
+  if(!s.areas.a7.entries) s.areas.a7.entries = [];
+  if(!s.areas.a7.badges) s.areas.a7.badges = [];
+  if(!s.areas.a7.weekBonus) s.areas.a7.weekBonus = {};
+  if(typeof s.areas.a7.xp!=="number") s.areas.a7.xp = 0;
+  if(!s.areas.a4.undo) s.areas.a4.undo = [];
+  return s;
+}
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY_V2);
+    if(raw){ var s = JSON.parse(raw); if(s && s.areas && s.areas.a4) return normalize(s); }
+  }catch(e){}
+  // migrate from v1 (single-game Dental Quest)
+  var s2 = emptyState();
+  try{
+    var raw1 = localStorage.getItem(KEY_V1);
+    if(raw1){
+      var v1 = JSON.parse(raw1);
+      if(v1 && v1.days){
+        s2.areas.a4.days = v1.days;
+        s2.areas.a4.xp = v1.xp||0;
+        s2.areas.a4.badges = v1.badges||[];
+        s2.lastBackup = v1.lastBackup||null;
+      }
+    }
+  }catch(e){}
+  return normalize(s2);
+}
+function save(){
+  try{ localStorage.setItem(KEY_V2, JSON.stringify(state)); }catch(e){}
+}
+function a4(){ return state.areas.a4; }
+function totalXp(){
+  var t=0;
+  for(var k in state.areas){ t += (state.areas[k].xp||0); }
+  return t;
+}
+
+function dateKey(d){
+  var y=d.getFullYear(), m=("0"+(d.getMonth()+1)).slice(-2), dd=("0"+d.getDate()).slice(-2);
+  return y+"-"+m+"-"+dd;
+}
+function today(){ return dateKey(new Date()); }
+function emptyDay(){ return {dm:0,comment:0,follow:0,response:0,booking:0,close:0}; }
+function getDay(k){ if(!a4().days[k]) a4().days[k]=emptyDay(); return a4().days[k]; }
+function touches(day){ return (day.dm||0)+(day.comment||0)+(day.follow||0); }
+
+/* ================= Screen navigation ================= */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  document.body.classList.toggle("in-a4", id==="screen-a4");
+  window.scrollTo({top:0});
+}
+function openArea(areaId){
+  if(areaId==="a4"){ showScreen("screen-a4"); render(); return; }
+  if(areaId==="a1"){ showScreen("screen-a1"); renderA1(); return; }
+  if(areaId==="a2"){ showScreen("screen-a2"); renderA2(); return; }
+  if(areaId==="a3"){ showScreen("screen-a3"); renderA3(); return; }
+  if(areaId==="a5"){ showScreen("screen-a5"); renderA5(); return; }
+  if(areaId==="a6"){ showScreen("screen-a6"); renderA6(); return; }
+  if(areaId==="a7"){ showScreen("screen-a7"); renderA7(); return; }
+  var a = null;
+  for(var i=0;i<AREAS.length;i++){ if(AREAS[i].id===areaId){ a=AREAS[i]; break; } }
+  if(!a) return;
+  document.getElementById("phTag").textContent = a.code+" · "+a.en.toUpperCase();
+  document.getElementById("phIco").textContent = a.ico;
+  document.getElementById("phName").textContent = a.name;
+  document.getElementById("phEn").textContent = a.en;
+  document.getElementById("phDesc").textContent = a.desc;
+  showScreen("screen-area");
+}
+document.querySelectorAll("[data-back]").forEach(function(b){
+  b.addEventListener("click", function(){ showScreen("screen-hub"); renderHub(); });
+});
+
+/* ================= Hub render ================= */
+function levelFrom(levels, xp){
+  var lv=1, cur=levels[0], next=null;
+  for(var i=0;i<levels.length;i++){
+    if(xp>=levels[i].xp){ lv=i+1; cur=levels[i]; next=levels[i+1]||null; }
+  }
+  return {lv:lv, cur:cur, next:next};
+}
+
+function renderHub(){
+  var t = totalXp();
+  var li = levelFrom(HUB_LEVELS, t);
+  document.getElementById("hubLevelTitle").textContent = li.cur.title;
+  document.getElementById("hubLevelNum").textContent = "LV."+li.lv;
+  var pct=100, label=t+" XP · 已達最高階";
+  if(li.next){
+    pct = Math.min(100, Math.round((t-li.cur.xp)/(li.next.xp-li.cur.xp)*100));
+    label = t+" XP · 距下一階 "+(li.next.xp-t)+" XP";
+  }
+  document.getElementById("hubXpFill").style.width = pct+"%";
+  document.getElementById("hubXpLabel").textContent = label;
+
+  var html="";
+  for(var i=0;i<AREAS.length;i++){
+    var a = AREAS[i];
+    var xp = state.areas[a.id].xp||0;
+    var liveCls = a.live ? " live" : "";
+    var status = a.live
+      ? '<div class="area-status live">● 進行中</div>'
+      : '<div class="area-status locked">🔒 待設計</div>';
+    html += '<button class="area-card'+liveCls+'" data-area="'+a.id+'">'
+          +   '<span class="area-ico">'+a.ico+'</span>'
+          +   '<span class="area-body">'
+          +     '<div class="area-code">'+a.code+'</div>'
+          +     '<div class="area-name">'+a.name+'</div>'
+          +     '<div class="area-en">'+a.en+'</div>'
+          +   '</span>'
+          +   '<span class="area-side">'
+          +     '<div class="area-xp">'+xp+' XP</div>'
+          +     status
+          +   '</span>'
+          + '</button>';
+  }
+  document.getElementById("hubGrid").innerHTML = html;
+  document.querySelectorAll(".area-card").forEach(function(c){
+    c.addEventListener("click", function(){ openArea(c.getAttribute("data-area")); });
+  });
+  updateVaultMeta();
+}
+
+/* ================= A4 core actions ================= */
+function addAction(act){
+  var k = today();
+  var d = getDay(k);
+  d[act] = (d[act]||0)+1;
+  a4().xp += XP_MAP[act];
+  a4().undo.push({date:k, act:act});
+  if(a4().undo.length>50) a4().undo.shift();
+
+  var msg = "+"+XP_MAP[act]+" XP · "+ACT_NAMES[act];
+  if(TOUCH_ACTS[act] && touches(d)===GOAL) msg = "🎉 今日百戰達成！+"+XP_MAP[act]+" XP";
+  toast(msg);
+
+  checkBadges();
+  save();
+  render();
+}
+
+function undo(){
+  var last = a4().undo.pop();
+  if(!last){ toast("沒有可復原的紀錄"); return; }
+  var d = getDay(last.date);
+  if(d[last.act]>0){
+    d[last.act]--;
+    a4().xp = Math.max(0, a4().xp - XP_MAP[last.act]);
+    toast("↺ 已復原："+ACT_NAMES[last.act]);
+  }
+  save();
+  render();
+}
+
+/* ================= A4 streak ================= */
+function weekdayStreak(){
+  var streak = 0;
+  var d = new Date();
+  var t = getDay(dateKey(d));
+  var dow = d.getDay();
+  var startToday = (dow>=1 && dow<=5 && touches(t)>=GOAL);
+  if(!startToday){ d.setDate(d.getDate()-1); }
+  for(var i=0;i<400;i++){
+    var dw = d.getDay();
+    if(dw===0 || dw===6){ d.setDate(d.getDate()-1); continue; }
+    var day = a4().days[dateKey(d)];
+    if(day && touches(day)>=GOAL){ streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+
+/* ================= A4 week data ================= */
+function currentWeekDates(){
+  var now = new Date();
+  var dow = now.getDay();
+  var monOffset = (dow===0) ? -6 : (1-dow);
+  var mon = new Date(now); mon.setDate(now.getDate()+monOffset);
+  var arr = [];
+  for(var i=0;i<5;i++){
+    var d = new Date(mon); d.setDate(mon.getDate()+i);
+    arr.push(d);
+  }
+  return arr;
+}
+
+/* ================= A4 badges ================= */
+function lifeTotals(){
+  var t={touch:0,response:0,booking:0,close:0,fullDays:0};
+  for(var k in a4().days){
+    var d=a4().days[k];
+    var tc=touches(d);
+    t.touch+=tc; t.response+=(d.response||0); t.booking+=(d.booking||0); t.close+=(d.close||0);
+    if(tc>=GOAL) t.fullDays++;
+  }
+  return t;
+}
+function hasBadge(id){ return a4().badges.indexOf(id)>=0; }
+function award(id){
+  if(hasBadge(id)) return;
+  a4().badges.push(id);
+  var b = null;
+  for(var i=0;i<BADGES.length;i++){ if(BADGES[i].id===id){ b=BADGES[i]; break; } }
+  if(b) setTimeout(function(){ toast("🏅 解鎖成就：「"+b.name+"」"); }, 700);
+}
+function checkBadges(){
+  var t = lifeTotals();
+  var td = getDay(today());
+  if(t.touch>=1) award("first_touch");
+  if(touches(td)>=GOAL) award("first_100");
+  if(t.response>=1) award("first_resp");
+  if(t.booking>=1) award("first_book");
+  if(t.close>=1) award("first_close");
+  if(t.touch>=1000) award("touch_1000");
+  if(t.touch>=5000) award("touch_5000");
+  var s = weekdayStreak();
+  if(s>=5) award("streak_5");
+  if(s>=10) award("streak_10");
+  var wk = currentWeekDates(), full=true;
+  for(var i=0;i<wk.length;i++){
+    var dd = a4().days[dateKey(wk[i])];
+    if(!dd || touches(dd)<GOAL){ full=false; break; }
+  }
+  if(full) award("perfect_week");
+}
+
+/* ================= A4 render ================= */
+var CIRC = 603.19;
+
+function render(){
+  var k = today();
+  var d = getDay(k);
+  var tc = touches(d);
+
+  var now = new Date();
+  var wnames = ["日","一","二","三","四","五","六"];
+  document.getElementById("todayLabel").textContent =
+    now.getFullYear()+" 年 "+(now.getMonth()+1)+" 月 "+now.getDate()+" 日 · 星期"+wnames[now.getDay()]+" · 今日戰場";
+
+  var pct = Math.min(tc/GOAL, 1);
+  document.getElementById("ringFg").style.strokeDashoffset = String(CIRC*(1-pct));
+  document.getElementById("ringCount").textContent = String(tc);
+  document.getElementById("ringDone").textContent = tc>=GOAL ? "⚑ 百戰達成 · 榮耀屬於堅持者" : "";
+
+  ["dm","comment","follow","response","booking","close"].forEach(function(a){
+    var el = document.getElementById("cnt-"+a);
+    if(el) el.textContent = "今日 "+(d[a]||0);
+  });
+
+  var li = levelFrom(A4_LEVELS, a4().xp);
+  document.getElementById("levelTitle").textContent = li.cur.title;
+  document.getElementById("levelNum").textContent = "LV."+li.lv;
+  var fillPct = 100;
+  var label = a4().xp+" XP · 已達最高階";
+  if(li.next){
+    var span = li.next.xp - li.cur.xp;
+    fillPct = Math.min(100, Math.round((a4().xp-li.cur.xp)/span*100));
+    label = a4().xp+" XP · 距下一階 "+(li.next.xp-a4().xp)+" XP";
+  }
+  document.getElementById("xpFill").style.width = fillPct+"%";
+  document.getElementById("xpLabel").textContent = label;
+
+  var wk = currentWeekDates();
+  var wnames2 = ["MON","TUE","WED","THU","FRI"];
+  var html = "";
+  var wkT=0, wkR=0, wkB=0, wkC=0;
+  for(var i=0;i<5;i++){
+    var kk = dateKey(wk[i]);
+    var dd = a4().days[kk] || emptyDay();
+    var t = touches(dd);
+    wkT+=t; wkR+=(dd.response||0); wkB+=(dd.booking||0); wkC+=(dd.close||0);
+    var p = Math.min(100, Math.round(t/GOAL*100));
+    var isToday = (kk===k) ? " today" : "";
+    var fullCls = t>=GOAL ? " full" : "";
+    html += '<div class="day-row'+isToday+'">'
+          +   '<span class="day-name">'+wnames2[i]+'</span>'
+          +   '<div class="day-bar"><div class="day-fill'+fullCls+'" style="width:'+p+'%"></div></div>'
+          +   '<span class="day-num"><strong>'+t+'</strong> /100</span>'
+          + '</div>';
+  }
+  document.getElementById("weekRows").innerHTML = html;
+  document.getElementById("weekTotal").textContent = String(wkT);
+  document.getElementById("wkTouch").textContent = String(wkT);
+  document.getElementById("wkResp").textContent = String(wkR);
+  document.getElementById("wkBook").textContent = String(wkB);
+  document.getElementById("wkClose").textContent = String(wkC);
+  document.getElementById("streakNum").textContent = String(weekdayStreak());
+
+  var bg = "";
+  for(var j=0;j<BADGES.length;j++){
+    var b = BADGES[j];
+    bg += '<div class="badge'+(hasBadge(b.id)?' won':'')+'">'
+        +   '<div class="badge-ico">'+b.ico+'</div>'
+        +   '<div class="badge-name">'+b.name+'</div>'
+        +   '<div class="badge-desc">'+b.desc+'</div>'
+        + '</div>';
+  }
+  document.getElementById("badgeGrid").innerHTML = bg;
+
+  var lt = lifeTotals();
+  document.getElementById("lifeTouch").textContent = String(lt.touch);
+  document.getElementById("lifeResp").textContent = String(lt.response);
+  document.getElementById("lifeBook").textContent = String(lt.booking);
+  document.getElementById("lifeClose").textContent = String(lt.close);
+  document.getElementById("lifeFullDays").textContent = String(lt.fullDays);
+  document.getElementById("lifeXp").textContent = String(a4().xp);
+}
+
+/* ================= A1: Aging Well ================= */
+function a1(){ return state.areas.a1; }
+function a1EmptyDay(){ return {strength:0,cardio:0,stretch:0,sugar:0,bonus:0}; }
+function a1GetDay(k){ if(!a1().days[k]) a1().days[k]=a1EmptyDay(); return a1().days[k]; }
+function a1Met(d){
+  var ex = (d.strength?1:0)+(d.cardio?1:0)+(d.stretch?1:0);
+  return ex>=2 && d.sugar>=1;
+}
+function a1Streak(){
+  var streak=0;
+  var d=new Date();
+  var td=a1().days[dateKey(d)];
+  if(!(td && a1Met(td))){ d.setDate(d.getDate()-1); }
+  for(var i=0;i<800;i++){
+    var day=a1().days[dateKey(d)];
+    if(day && a1Met(day)){ streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+function a1BestStreak(){
+  var keys=Object.keys(a1().days).filter(function(k){ return a1Met(a1().days[k]); }).sort();
+  var best=0, run=0, prev=null;
+  for(var i=0;i<keys.length;i++){
+    if(prev){
+      var pd=new Date(prev+"T00:00:00"), cd=new Date(keys[i]+"T00:00:00");
+      run = (cd-pd===86400000) ? run+1 : 1;
+    }else run=1;
+    if(run>best) best=run;
+    prev=keys[i];
+  }
+  return best;
+}
+function a1Totals(){
+  var t={train:0,sugar:0,met:0};
+  for(var k in a1().days){
+    var d=a1().days[k];
+    t.train += (d.strength?1:0)+(d.cardio?1:0)+(d.stretch?1:0);
+    t.sugar += (d.sugar?1:0);
+    if(a1Met(d)) t.met++;
+  }
+  return t;
+}
+function a1HasBadge(id){ return a1().badges.indexOf(id)>=0; }
+function a1Award(id){
+  if(a1HasBadge(id)) return;
+  a1().badges.push(id);
+  var b=null;
+  for(var i=0;i<A1_BADGES.length;i++){ if(A1_BADGES[i].id===id){ b=A1_BADGES[i]; break; } }
+  if(b) setTimeout(function(){ toast("🏅 解鎖成就：「"+b.name+"」"); }, 700);
+}
+function a1CheckBadges(){
+  var t=a1Totals();
+  var td=a1GetDay(today());
+  if(t.train>=1 || t.sugar>=1) a1Award("a1_first");
+  if(td.strength && td.cardio && td.stretch) a1Award("a1_triple");
+  if(t.sugar>=30) a1Award("a1_sugar30");
+  if(t.train>=100) a1Award("a1_train100");
+  var s=a1Streak();
+  var mileMap={7:"a1_s7",21:"a1_s21",66:"a1_s66",100:"a1_s100"};
+  for(var i=0;i<A1_MILES.length;i++){
+    var m=A1_MILES[i];
+    if(s>=m && !a1HasBadge(mileMap[m])){
+      a1Award(mileMap[m]);
+      a1().xp += A1_MILE_XP[m];
+      (function(mm){ setTimeout(function(){ toast("⛰️ 里程碑 "+mm+" 天！+"+A1_MILE_XP[mm]+" XP"); }, 1400); })(m);
+    }
+  }
+}
+function toggleA1(act){
+  var k=today();
+  var d=a1GetDay(k);
+  if(d[act]){
+    d[act]=0;
+    a1().xp = Math.max(0, a1().xp - A1_XP[act]);
+    toast("↺ 已取消："+A1_NAMES[act]);
+  }else{
+    d[act]=1;
+    a1().xp += A1_XP[act];
+    toast("+"+A1_XP[act]+" XP · "+A1_NAMES[act]);
+  }
+  // daily bonus reconciliation
+  if(a1Met(d) && !d.bonus){
+    d.bonus=1; a1().xp += A1_DAILY_BONUS;
+    setTimeout(function(){ toast("🎉 今日達標！+"+A1_DAILY_BONUS+" XP"); }, 900);
+  }else if(!a1Met(d) && d.bonus){
+    d.bonus=0; a1().xp = Math.max(0, a1().xp - A1_DAILY_BONUS);
+  }
+  a1CheckBadges();
+  save();
+  renderA1();
+}
+function renderA1(){
+  var el=document.getElementById("a1TodayLabel");
+  if(!el) return;
+  var k=today();
+  var d=a1GetDay(k);
+  var now=new Date();
+  var wnames=["日","一","二","三","四","五","六"];
+  el.textContent = now.getFullYear()+" 年 "+(now.getMonth()+1)+" 月 "+now.getDate()+" 日 · 星期"+wnames[now.getDay()]+" · 今日修行";
+
+  ["strength","cardio","stretch","sugar"].forEach(function(a){
+    var btn=document.querySelector('[data-a1="'+a+'"]');
+    if(btn) btn.classList.toggle("done", !!d[a]);
+  });
+  document.getElementById("a1DoneMsg").textContent = a1Met(d) ? "⚑ 今日達標 · 殿已看守" : "";
+
+  var s=a1Streak();
+  document.getElementById("a1StreakBig").textContent = String(s);
+
+  // milestone track (progress toward final 100-day mark)
+  var nextM=null;
+  for(var i=0;i<A1_MILES.length;i++){ if(s<A1_MILES[i]){ nextM=A1_MILES[i]; break; } }
+  document.getElementById("a1MileNext").textContent = nextM
+    ? ("距下一座里程碑 "+(nextM-s)+" 天")
+    : "百日築基已成 · 傳說仍在延續";
+  var pct=Math.min(100, Math.round(s/100*100));
+  document.getElementById("a1MileFill").style.width = pct+"%";
+
+  // last 7 days dots
+  var dots="";
+  var wn2=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  for(var j=6;j>=0;j--){
+    var dd=new Date(); dd.setDate(dd.getDate()-j);
+    var kk=dateKey(dd);
+    var day=a1().days[kk];
+    var hit=(day && a1Met(day)) ? " hit" : "";
+    var tRing=(kk===k) ? " today-ring" : "";
+    dots += '<div class="dot-cell">'
+          +   '<div class="dot'+hit+tRing+'">'+((day&&a1Met(day))?"✓":"")+'</div>'
+          +   '<div class="dot-lab">'+wn2[dd.getDay()]+'</div>'
+          + '</div>';
+  }
+  document.getElementById("a1Dots").innerHTML = dots;
+
+  // level
+  var li=levelFrom(A1_LEVELS, a1().xp);
+  document.getElementById("a1LevelTitle").textContent = li.cur.title;
+  document.getElementById("a1LevelNum").textContent = "LV."+li.lv;
+  var fillPct=100, label=a1().xp+" XP · 已達最高階";
+  if(li.next){
+    fillPct=Math.min(100, Math.round((a1().xp-li.cur.xp)/(li.next.xp-li.cur.xp)*100));
+    label=a1().xp+" XP · 距下一階 "+(li.next.xp-a1().xp)+" XP";
+  }
+  document.getElementById("a1XpFill").style.width = fillPct+"%";
+  document.getElementById("a1XpLabel").textContent = label;
+
+  // badges
+  var bg="";
+  for(var b=0;b<A1_BADGES.length;b++){
+    var bd=A1_BADGES[b];
+    bg += '<div class="badge'+(a1HasBadge(bd.id)?' won':'')+'">'
+        +   '<div class="badge-ico">'+bd.ico+'</div>'
+        +   '<div class="badge-name">'+bd.name+'</div>'
+        +   '<div class="badge-desc">'+bd.desc+'</div>'
+        + '</div>';
+  }
+  document.getElementById("a1BadgeGrid").innerHTML = bg;
+
+  // life stats
+  var t=a1Totals();
+  document.getElementById("a1LifeTrain").textContent = String(t.train);
+  document.getElementById("a1LifeSugar").textContent = String(t.sugar);
+  document.getElementById("a1LifeMet").textContent = String(t.met);
+  document.getElementById("a1LifeBest").textContent = String(Math.max(a1BestStreak(), a1Streak()));
+  document.getElementById("a1LifeXp").textContent = String(a1().xp);
+}
+document.querySelectorAll("[data-a1]").forEach(function(btn){
+  btn.addEventListener("click", function(){ toggleA1(btn.getAttribute("data-a1")); });
+});
+
+/* ================= A2: Artistry ================= */
+function a2(){ return state.areas.a2; }
+function a2EmptyDay(){ return {guitar:0,piano:0,callig:0,bonus:0}; }
+function a2GetDay(k){ if(!a2().days[k]) a2().days[k]=a2EmptyDay(); return a2().days[k]; }
+function a2Met(d){ return (d.guitar||0)>=A2_GOAL_MIN; }
+function a2Streak(){
+  var streak=0;
+  var d=new Date();
+  var td=a2().days[dateKey(d)];
+  if(!(td && a2Met(td))){ d.setDate(d.getDate()-1); }
+  for(var i=0;i<800;i++){
+    var day=a2().days[dateKey(d)];
+    if(day && a2Met(day)){ streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+function a2BestStreak(){
+  var keys=Object.keys(a2().days).filter(function(k){ return a2Met(a2().days[k]); }).sort();
+  var best=0, run=0, prev=null;
+  for(var i=0;i<keys.length;i++){
+    if(prev){
+      var pd=new Date(prev+"T00:00:00"), cd=new Date(keys[i]+"T00:00:00");
+      run = (cd-pd===86400000) ? run+1 : 1;
+    }else run=1;
+    if(run>best) best=run;
+    prev=keys[i];
+  }
+  return best;
+}
+function a2Totals(){
+  var t={guitar:0,piano:0,callig:0,met:0};
+  for(var k in a2().days){
+    var d=a2().days[k];
+    t.guitar+=(d.guitar||0); t.piano+=(d.piano||0); t.callig+=(d.callig||0);
+    if(a2Met(d)) t.met++;
+  }
+  return t;
+}
+function a2HasBadge(id){ return a2().badges.indexOf(id)>=0; }
+function a2Award(id){
+  if(a2HasBadge(id)) return;
+  a2().badges.push(id);
+  var b=null;
+  for(var i=0;i<A2_BADGES.length;i++){ if(A2_BADGES[i].id===id){ b=A2_BADGES[i]; break; } }
+  if(b) setTimeout(function(){ toast("🏅 解鎖成就：「"+b.name+"」"); }, 700);
+}
+function a2CheckBadges(){
+  var t=a2Totals();
+  var td=a2GetDay(today());
+  if(t.guitar>0 || t.piano>0 || t.callig>0) a2Award("a2_first");
+  if(td.guitar>0 && td.piano>0 && td.callig>0) a2Award("a2_triple");
+  if(t.guitar>=1000) a2Award("a2_guitar1000");
+  if(t.piano>=300 && t.callig>=300) a2Award("a2_side300");
+  var s=a2Streak();
+  var mileMap={7:"a2_s7",21:"a2_s21",66:"a2_s66",100:"a2_s100"};
+  for(var i=0;i<A2_MILES.length;i++){
+    var m=A2_MILES[i];
+    if(s>=m && !a2HasBadge(mileMap[m])){
+      a2Award(mileMap[m]);
+      a2().xp += A2_MILE_XP[m];
+      (function(mm){ setTimeout(function(){ toast("⛰️ 里程碑 "+mm+" 天！+"+A2_MILE_XP[mm]+" XP"); }, 1400); })(m);
+    }
+  }
+}
+function addA2(art, mins){
+  var k=today();
+  var d=a2GetDay(k);
+  d[art]=(d[art]||0)+mins;
+  a2().xp += mins; // 1 XP per minute, all arts
+  a2().undo.push({date:k, art:art, mins:mins});
+  if(a2().undo.length>50) a2().undo.shift();
+  toast("+"+mins+" XP · "+A2_ARTS[art]+" "+mins+" 分鐘");
+  if(a2Met(d) && !d.bonus){
+    d.bonus=1; a2().xp += A2_DAILY_BONUS;
+    setTimeout(function(){ toast("🎉 主修達標！+"+A2_DAILY_BONUS+" XP"); }, 900);
+  }
+  a2CheckBadges();
+  save();
+  renderA2();
+}
+function undoA2(){
+  var last=a2().undo.pop();
+  if(!last){ toast("沒有可復原的紀錄"); return; }
+  var d=a2GetDay(last.date);
+  d[last.art]=Math.max(0,(d[last.art]||0)-last.mins);
+  a2().xp=Math.max(0, a2().xp-last.mins);
+  if(!a2Met(d) && d.bonus){
+    d.bonus=0; a2().xp=Math.max(0, a2().xp-A2_DAILY_BONUS);
+  }
+  toast("↺ 已復原："+A2_ARTS[last.art]+" "+last.mins+" 分鐘");
+  save();
+  renderA2();
+}
+function renderA2(){
+  var el=document.getElementById("a2TodayLabel");
+  if(!el) return;
+  var k=today();
+  var d=a2GetDay(k);
+  var now=new Date();
+  var wnames=["日","一","二","三","四","五","六"];
+  el.textContent = now.getFullYear()+" 年 "+(now.getMonth()+1)+" 月 "+now.getDate()+" 日 · 星期"+wnames[now.getDay()]+" · 今日修行";
+
+  document.getElementById("a2min-guitar").textContent = "今日 "+(d.guitar||0)+" 分鐘";
+  document.getElementById("a2min-piano").textContent = "今日 "+(d.piano||0)+" 分鐘";
+  document.getElementById("a2min-callig").textContent = "今日 "+(d.callig||0)+" 分鐘";
+
+  var g=d.guitar||0;
+  var pct=Math.min(100, Math.round(g/A2_GOAL_MIN*100));
+  var fill=document.getElementById("a2MainFill");
+  fill.style.width=pct+"%";
+  fill.classList.toggle("full", g>=A2_GOAL_MIN);
+  document.getElementById("a2MainNum").textContent = g+" / "+A2_GOAL_MIN+" 分鐘";
+  document.getElementById("a2DoneMsg").textContent = a2Met(d) ? "⚑ 今日達標 · 琴音不輟" : "";
+
+  var s=a2Streak();
+  document.getElementById("a2StreakBig").textContent = String(s);
+  var nextM=null;
+  for(var i=0;i<A2_MILES.length;i++){ if(s<A2_MILES[i]){ nextM=A2_MILES[i]; break; } }
+  document.getElementById("a2MileNext").textContent = nextM
+    ? ("距下一座里程碑 "+(nextM-s)+" 天")
+    : "百日琴道已成 · 傳說仍在延續";
+  document.getElementById("a2MileFill").style.width = Math.min(100, Math.round(s/100*100))+"%";
+
+  var dots="";
+  var wn2=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  for(var j=6;j>=0;j--){
+    var dd=new Date(); dd.setDate(dd.getDate()-j);
+    var kk=dateKey(dd);
+    var day=a2().days[kk];
+    var hit=(day && a2Met(day)) ? " hit" : "";
+    var tRing=(kk===k) ? " today-ring" : "";
+    dots += '<div class="dot-cell">'
+          +   '<div class="dot'+hit+tRing+'">'+((day&&a2Met(day))?"✓":"")+'</div>'
+          +   '<div class="dot-lab">'+wn2[dd.getDay()]+'</div>'
+          + '</div>';
+  }
+  document.getElementById("a2Dots").innerHTML = dots;
+
+  var li=levelFrom(A2_LEVELS, a2().xp);
+  document.getElementById("a2LevelTitle").textContent = li.cur.title;
+  document.getElementById("a2LevelNum").textContent = "LV."+li.lv;
+  var fillPct=100, label=a2().xp+" XP · 已達最高階";
+  if(li.next){
+    fillPct=Math.min(100, Math.round((a2().xp-li.cur.xp)/(li.next.xp-li.cur.xp)*100));
+    label=a2().xp+" XP · 距下一階 "+(li.next.xp-a2().xp)+" XP";
+  }
+  document.getElementById("a2XpFill").style.width = fillPct+"%";
+  document.getElementById("a2XpLabel").textContent = label;
+
+  var bg="";
+  for(var b=0;b<A2_BADGES.length;b++){
+    var bd=A2_BADGES[b];
+    bg += '<div class="badge'+(a2HasBadge(bd.id)?' won':'')+'">'
+        +   '<div class="badge-ico">'+bd.ico+'</div>'
+        +   '<div class="badge-name">'+bd.name+'</div>'
+        +   '<div class="badge-desc">'+bd.desc+'</div>'
+        + '</div>';
+  }
+  document.getElementById("a2BadgeGrid").innerHTML = bg;
+
+  var t=a2Totals();
+  document.getElementById("a2LifeGuitar").textContent = String(t.guitar);
+  document.getElementById("a2LifePiano").textContent = String(t.piano);
+  document.getElementById("a2LifeCallig").textContent = String(t.callig);
+  document.getElementById("a2LifeMet").textContent = String(t.met);
+  document.getElementById("a2LifeBest").textContent = String(Math.max(a2BestStreak(), a2Streak()));
+  document.getElementById("a2LifeXp").textContent = String(a2().xp);
+}
+document.querySelectorAll("[data-a2]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    addA2(btn.getAttribute("data-a2"), parseInt(btn.getAttribute("data-min"),10));
+  });
+});
+document.getElementById("a2UndoBtn").addEventListener("click", undoA2);
+
+/* ================= A3: Autism Awesome ================= */
+function a3(){ return state.areas.a3; }
+function weekKeyOf(d){
+  var dow=d.getDay();
+  var monOffset=(dow===0)?-6:(1-dow);
+  var mon=new Date(d); mon.setDate(d.getDate()+monOffset);
+  return dateKey(mon);
+}
+function a3WeekCount(son, wk){
+  var c=0;
+  for(var i=0;i<a3().entries.length;i++){
+    var e=a3().entries[i];
+    if(e.son===son && weekKeyOf(new Date(e.d+"T00:00:00"))===wk) c++;
+  }
+  return c;
+}
+function a3Totals(){
+  var t={hin:0, ks:0, growth:0, space:0};
+  for(var i=0;i<a3().entries.length;i++){
+    var e=a3().entries[i];
+    t[e.son]++; t[e.type]++;
+  }
+  return t;
+}
+function a3BothWeeks(){
+  var wb=a3().weekBonus, c=0;
+  for(var k in wb){ if(wb[k].hin && wb[k].ks) c++; }
+  return c;
+}
+function a3ConsecBothWeeks(){
+  var d=new Date();
+  var wk=weekKeyOf(d);
+  var wb=a3().weekBonus;
+  var run=0;
+  // if current week not yet double-met, start from last week
+  if(!(wb[wk] && wb[wk].hin && wb[wk].ks)){ d.setDate(d.getDate()-7); wk=weekKeyOf(d); }
+  for(var i=0;i<200;i++){
+    if(wb[wk] && wb[wk].hin && wb[wk].ks){ run++; d.setDate(d.getDate()-7); wk=weekKeyOf(d); }
+    else break;
+  }
+  return run;
+}
+function a3HasBadge(id){ return a3().badges.indexOf(id)>=0; }
+function a3Award(id){
+  if(a3HasBadge(id)) return;
+  a3().badges.push(id);
+  var b=null;
+  for(var i=0;i<A3_BADGES.length;i++){ if(A3_BADGES[i].id===id){ b=A3_BADGES[i]; break; } }
+  if(b) setTimeout(function(){ toast("🏅 解鎖成就：「"+b.name+"」"); }, 700);
+}
+function a3CheckBadges(){
+  var t=a3Totals();
+  var total=t.hin+t.ks;
+  if(total>=1) a3Award("a3_first");
+  if(t.growth>=10) a3Award("a3_growth10");
+  if(t.space>=10) a3Award("a3_space10");
+  if(t.hin>=50) a3Award("a3_hin50");
+  if(t.ks>=50) a3Award("a3_ks50");
+  var k=today(), hinToday=false, ksToday=false;
+  for(var i=0;i<a3().entries.length;i++){
+    var e=a3().entries[i];
+    if(e.d===k){ if(e.son==="hin") hinToday=true; if(e.son==="ks") ksToday=true; }
+  }
+  if(hinToday && ksToday) a3Award("a3_both");
+  if(a3ConsecBothWeeks()>=4) a3Award("a3_w4");
+  var mileMap={10:"a3_m10",30:"a3_m30",60:"a3_m60",100:"a3_100"};
+  for(var j=0;j<A3_MILES.length;j++){
+    var m=A3_MILES[j];
+    var bid=(m===100)?"a3_100":("a3_m"+m);
+    if(total>=m && a3().badges.indexOf(bid)<0){
+      a3().badges.push(bid);
+      a3().xp += A3_MILE_XP[m];
+      (function(mm){ setTimeout(function(){ toast("⛰️ 里程碑 "+mm+" 次！+"+A3_MILE_XP[mm]+" XP"); }, 1400); })(m);
+      if(m===100) setTimeout(function(){ toast("🏅 解鎖成就：「百次同行」"); }, 2100);
+    }
+  }
+}
+var a3Pending = {hin:null, ks:null};
+function a3OpenNote(son, type){
+  a3Pending[son]=type;
+  var box=document.getElementById("noteBox-"+son);
+  document.getElementById("noteLabel-"+son).textContent =
+    A3_TYPES[type].ico+" 為「"+A3_SONS[son]+"」記下"+A3_TYPES[type].name;
+  document.getElementById("noteText-"+son).value="";
+  box.hidden=false;
+  document.getElementById("noteText-"+son).focus();
+}
+function a3SaveNote(son){
+  var type=a3Pending[son];
+  if(!type) return;
+  var note=document.getElementById("noteText-"+son).value.trim();
+  var k=today();
+  a3().entries.push({d:k, son:son, type:type, note:note, ts:Date.now()});
+  a3().xp += A3_ENTRY_XP;
+  toast("+"+A3_ENTRY_XP+" XP · "+A3_SONS[son]+"："+A3_TYPES[type].name);
+  // weekly bonus
+  var wk=weekKeyOf(new Date());
+  if(!a3().weekBonus[wk]) a3().weekBonus[wk]={};
+  if(!a3().weekBonus[wk][son] && a3WeekCount(son, wk)>=A3_WEEK_GOAL){
+    a3().weekBonus[wk][son]=1;
+    a3().xp += A3_WEEK_BONUS;
+    setTimeout(function(){ toast("🎉 "+A3_SONS[son]+" 本週達標！+"+A3_WEEK_BONUS+" XP"); }, 900);
+  }
+  a3Pending[son]=null;
+  document.getElementById("noteBox-"+son).hidden=true;
+  a3CheckBadges();
+  save();
+  renderA3();
+}
+function a3CancelNote(son){
+  a3Pending[son]=null;
+  document.getElementById("noteBox-"+son).hidden=true;
+}
+function a3Undo(){
+  var e=a3().entries.pop();
+  if(!e){ toast("沒有可復原的紀錄"); return; }
+  a3().xp=Math.max(0, a3().xp-A3_ENTRY_XP);
+  var wk=weekKeyOf(new Date(e.d+"T00:00:00"));
+  if(a3().weekBonus[wk] && a3().weekBonus[wk][e.son] && a3WeekCount(e.son, wk)<A3_WEEK_GOAL){
+    delete a3().weekBonus[wk][e.son];
+    a3().xp=Math.max(0, a3().xp-A3_WEEK_BONUS);
+  }
+  toast("↺ 已復原："+A3_SONS[e.son]+"："+A3_TYPES[e.type].name);
+  save();
+  renderA3();
+}
+function a3RenderEntries(son){
+  var list=a3().entries.filter(function(e){ return e.son===son; }).slice(-3).reverse();
+  if(list.length===0){
+    return '<div class="entries-empty">尚未有紀錄——今天觀察到甚麼？</div>';
+  }
+  var html="";
+  for(var i=0;i<list.length;i++){
+    var e=list[i];
+    var noteHtml = e.note
+      ? '<span class="entry-note"></span>'
+      : '<span class="entry-note empty">（未寫內容）</span>';
+    html += '<div class="entry-row">'
+          +   '<span class="entry-ico">'+A3_TYPES[e.type].ico+'</span>'
+          +   '<span class="entry-body">'
+          +     '<div class="entry-meta">'+e.d+' · '+A3_TYPES[e.type].name+'</div>'
+          +     noteHtml
+          +   '</span>'
+          + '</div>';
+  }
+  return html;
+}
+function a3FillNotes(son){
+  // safely inject note text via textContent to avoid HTML issues
+  var list=a3().entries.filter(function(e){ return e.son===son; }).slice(-3).reverse();
+  var rows=document.querySelectorAll("#entries-"+son+" .entry-note:not(.empty)");
+  var ri=0;
+  for(var i=0;i<list.length;i++){
+    if(list[i].note){
+      if(rows[ri]) rows[ri].textContent=list[i].note;
+      ri++;
+    }
+  }
+}
+function renderA3(){
+  var el=document.getElementById("a3LevelTitle");
+  if(!el) return;
+  var wk=weekKeyOf(new Date());
+
+  ["hin","ks"].forEach(function(son){
+    var c=a3WeekCount(son, wk);
+    document.getElementById("a3wk-"+son).textContent=String(c);
+    var wrap=document.getElementById("a3wkwrap-"+son);
+    wrap.classList.toggle("met", c>=A3_WEEK_GOAL);
+    document.getElementById("entries-"+son).innerHTML=a3RenderEntries(son);
+    a3FillNotes(son);
+  });
+
+  var t=a3Totals();
+  var total=t.hin+t.ks;
+  var nextM=null;
+  for(var i=0;i<A3_MILES.length;i++){ if(total<A3_MILES[i]){ nextM=A3_MILES[i]; break; } }
+  document.getElementById("a3MileNext").textContent = nextM
+    ? ("距下一座里程碑 "+(nextM-total)+" 次")
+    : "百次同行已成 · 恩典仍在累積";
+  document.getElementById("a3MileFill").style.width = Math.min(100, Math.round(total/100*100))+"%";
+
+  var li=levelFrom(A3_LEVELS, a3().xp);
+  document.getElementById("a3LevelTitle").textContent = li.cur.title;
+  document.getElementById("a3LevelNum").textContent = "LV."+li.lv;
+  var fillPct=100, label=a3().xp+" XP · 已達最高階";
+  if(li.next){
+    fillPct=Math.min(100, Math.round((a3().xp-li.cur.xp)/(li.next.xp-li.cur.xp)*100));
+    label=a3().xp+" XP · 距下一階 "+(li.next.xp-a3().xp)+" XP";
+  }
+  document.getElementById("a3XpFill").style.width = fillPct+"%";
+  document.getElementById("a3XpLabel").textContent = label;
+
+  var bg="";
+  for(var b=0;b<A3_BADGES.length;b++){
+    var bd=A3_BADGES[b];
+    bg += '<div class="badge'+(a3HasBadge(bd.id)?' won':'')+'">'
+        +   '<div class="badge-ico">'+bd.ico+'</div>'
+        +   '<div class="badge-name">'+bd.name+'</div>'
+        +   '<div class="badge-desc">'+bd.desc+'</div>'
+        + '</div>';
+  }
+  document.getElementById("a3BadgeGrid").innerHTML = bg;
+
+  document.getElementById("a3LifeHin").textContent = String(t.hin);
+  document.getElementById("a3LifeKs").textContent = String(t.ks);
+  document.getElementById("a3LifeGrowth").textContent = String(t.growth);
+  document.getElementById("a3LifeSpace").textContent = String(t.space);
+  document.getElementById("a3LifeWeeks").textContent = String(a3BothWeeks());
+  document.getElementById("a3LifeXp").textContent = String(a3().xp);
+}
+document.querySelectorAll("[data-a3son]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    a3OpenNote(btn.getAttribute("data-a3son"), btn.getAttribute("data-a3type"));
+  });
+});
+document.querySelectorAll("[data-a3save]").forEach(function(btn){
+  btn.addEventListener("click", function(){ a3SaveNote(btn.getAttribute("data-a3save")); });
+});
+document.querySelectorAll("[data-a3cancel]").forEach(function(btn){
+  btn.addEventListener("click", function(){ a3CancelNote(btn.getAttribute("data-a3cancel")); });
+});
+document.getElementById("a3UndoBtn").addEventListener("click", a3Undo);
+
+/* ================= A5: Apprentices of Jesus ================= */
+function a5(){ return state.areas.a5; }
+function a5DevOn(k){ return !!(a5().days[k] && a5().days[k].dev); }
+function a5Streak(){
+  var streak=0;
+  var d=new Date();
+  if(!a5DevOn(dateKey(d))){ d.setDate(d.getDate()-1); }
+  for(var i=0;i<800;i++){
+    if(a5DevOn(dateKey(d))){ streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+function a5BestStreak(){
+  var keys=Object.keys(a5().days).filter(function(k){ return a5().days[k].dev; }).sort();
+  var best=0, run=0, prev=null;
+  for(var i=0;i<keys.length;i++){
+    if(prev){
+      var pd=new Date(prev+"T00:00:00"), cd=new Date(keys[i]+"T00:00:00");
+      run = (cd-pd===86400000) ? run+1 : 1;
+    }else run=1;
+    if(run>best) best=run;
+    prev=keys[i];
+  }
+  return best;
+}
+function a5WeekDevCount(wk){
+  var c=0;
+  for(var k in a5().days){
+    if(a5().days[k].dev && weekKeyOf(new Date(k+"T00:00:00"))===wk) c++;
+  }
+  return c;
+}
+function a5WeekWalkCount(wk){
+  var c=0;
+  for(var i=0;i<a5().walks.length;i++){
+    if(weekKeyOf(new Date(a5().walks[i].d+"T00:00:00"))===wk) c++;
+  }
+  return c;
+}
+function a5Totals(){
+  var dev=0;
+  for(var k in a5().days){ if(a5().days[k].dev) dev++; }
+  var weeks=0;
+  for(var w in a5().weekBonus){ if(a5().weekBonus[w]) weeks++; }
+  return {dev:dev, walk:a5().walks.length, weeks:weeks};
+}
+function a5HasBadge(id){ return a5().badges.indexOf(id)>=0; }
+function a5Award(id){
+  if(a5HasBadge(id)) return;
+  a5().badges.push(id);
+  var b=null;
+  for(var i=0;i<A5_BADGES.length;i++){ if(A5_BADGES[i].id===id){ b=A5_BADGES[i]; break; } }
+  if(b) setTimeout(function(){ toast("🏅 解鎖成就：「"+b.name+"」"); }, 700);
+}
+function a5ConsecWeeks(){
+  var d=new Date();
+  var wk=weekKeyOf(d);
+  var wb=a5().weekBonus;
+  var run=0;
+  if(!wb[wk]){ d.setDate(d.getDate()-7); wk=weekKeyOf(d); }
+  for(var i=0;i<200;i++){
+    if(wb[wk]){ run++; d.setDate(d.getDate()-7); wk=weekKeyOf(d); }
+    else break;
+  }
+  return run;
+}
+function a5CheckBadges(){
+  var t=a5Totals();
+  if(t.dev>=1) a5Award("a5_first");
+  if(t.walk>=1) a5Award("a5_walk1");
+  if(t.walk>=10) a5Award("a5_walk10");
+  if(t.walk>=100) a5Award("a5_walk100");
+  if(a5ConsecWeeks()>=4) a5Award("a5_w4");
+  var s=a5Streak();
+  var devMap={7:"a5_s7",40:"a5_s40",100:"a5_s100"};
+  for(var i=0;i<A5_DEV_MILES.length;i++){
+    var m=A5_DEV_MILES[i];
+    if(s>=m && !a5HasBadge(devMap[m])){
+      a5Award(devMap[m]);
+      a5().xp += A5_DEV_MILE_XP[m];
+      (function(mm){ setTimeout(function(){ toast("⛰️ 連續靈修 "+mm+" 天！+"+A5_DEV_MILE_XP[mm]+" XP"); }, 1400); })(m);
+    }
+  }
+  for(var j=0;j<A5_WALK_MILES.length;j++){
+    var wm=A5_WALK_MILES[j];
+    var bid="a5_wm"+wm;
+    if((wm===10&&a5HasBadge("a5_walk10"))||(wm===100&&a5HasBadge("a5_walk100"))){
+      // visible badges handle 10 & 100; still award XP once via hidden marker
+    }
+    if(t.walk>=wm && a5().badges.indexOf(bid)<0){
+      a5().badges.push(bid);
+      a5().xp += A5_WALK_MILE_XP[wm];
+      (function(mm){ setTimeout(function(){ toast("⛰️ 同行 "+mm+" 次！+"+A5_WALK_MILE_XP[mm]+" XP"); }, 2000); })(wm);
+    }
+  }
+}
+function a5WeekBonusCheck(){
+  var wk=weekKeyOf(new Date());
+  if(!a5().weekBonus[wk] && a5WeekDevCount(wk)>=A5_WEEK_DEV_GOAL && a5WeekWalkCount(wk)>=A5_WEEK_WALK_GOAL){
+    a5().weekBonus[wk]=1;
+    a5().xp += A5_WEEK_BONUS;
+    setTimeout(function(){ toast("🎉 本週雙達標！+"+A5_WEEK_BONUS+" XP"); }, 900);
+  }
+}
+function a5ToggleDev(){
+  var k=today();
+  if(!a5().days[k]) a5().days[k]={dev:0};
+  if(a5().days[k].dev){
+    a5().days[k].dev=0;
+    a5().xp=Math.max(0, a5().xp-A5_DEV_XP);
+    var wk=weekKeyOf(new Date());
+    if(a5().weekBonus[wk] && a5WeekDevCount(wk)<A5_WEEK_DEV_GOAL){
+      delete a5().weekBonus[wk];
+      a5().xp=Math.max(0, a5().xp-A5_WEEK_BONUS);
+    }
+    toast("↺ 已取消：今日靈修");
+  }else{
+    a5().days[k].dev=1;
+    a5().xp += A5_DEV_XP;
+    toast("+"+A5_DEV_XP+" XP · 今日靈修");
+    a5WeekBonusCheck();
+  }
+  a5CheckBadges();
+  save();
+  renderA5();
+}
+function a5AddWalk(){
+  var k=today();
+  a5().walks.push({d:k, ts:Date.now()});
+  a5().xp += A5_WALK_XP;
+  toast("+"+A5_WALK_XP+" XP · 門徒同行");
+  a5WeekBonusCheck();
+  a5CheckBadges();
+  save();
+  renderA5();
+}
+function a5UndoWalk(){
+  var w=a5().walks.pop();
+  if(!w){ toast("沒有可復原的同行紀錄"); return; }
+  a5().xp=Math.max(0, a5().xp-A5_WALK_XP);
+  var wk=weekKeyOf(new Date(w.d+"T00:00:00"));
+  if(a5().weekBonus[wk] && a5WeekWalkCount(wk)<A5_WEEK_WALK_GOAL){
+    delete a5().weekBonus[wk];
+    a5().xp=Math.max(0, a5().xp-A5_WEEK_BONUS);
+  }
+  toast("↺ 已復原：門徒同行");
+  save();
+  renderA5();
+}
+function renderA5(){
+  var el=document.getElementById("a5TodayLabel");
+  if(!el) return;
+  var k=today();
+  var now=new Date();
+  var wnames=["日","一","二","三","四","五","六"];
+  el.textContent = now.getFullYear()+" 年 "+(now.getMonth()+1)+" 月 "+now.getDate()+" 日 · 星期"+wnames[now.getDay()]+" · 今日靈程";
+
+  var devBtn=document.querySelector('[data-a5="dev"]');
+  if(devBtn) devBtn.classList.toggle("done", a5DevOn(k));
+
+  var s=a5Streak();
+  document.getElementById("a5StreakBig").textContent=String(s);
+
+  var wk=weekKeyOf(now);
+  var devC=a5WeekDevCount(wk), walkC=a5WeekWalkCount(wk);
+  document.getElementById("a5WkDevNum").textContent=devC+" / "+A5_WEEK_DEV_GOAL+" 天";
+  var devFill=document.getElementById("a5WkDevFill");
+  devFill.style.width=Math.min(100, Math.round(devC/A5_WEEK_DEV_GOAL*100))+"%";
+  devFill.classList.toggle("full", devC>=A5_WEEK_DEV_GOAL);
+  document.getElementById("a5WkWalkNum").textContent=walkC+" / "+A5_WEEK_WALK_GOAL+" 次";
+  var walkFill=document.getElementById("a5WkWalkFill");
+  walkFill.style.width=Math.min(100, Math.round(walkC/A5_WEEK_WALK_GOAL*100))+"%";
+  walkFill.classList.toggle("full", walkC>=A5_WEEK_WALK_GOAL);
+  document.getElementById("a5DoneMsg").textContent =
+    (devC>=A5_WEEK_DEV_GOAL && walkC>=A5_WEEK_WALK_GOAL) ? "⚑ 本週雙達標 · 忠心又良善" : "";
+
+  var nextD=null;
+  for(var i=0;i<A5_DEV_MILES.length;i++){ if(s<A5_DEV_MILES[i]){ nextD=A5_DEV_MILES[i]; break; } }
+  document.getElementById("a5MileDevNext").textContent = nextD
+    ? ("距下一座里程碑 "+(nextD-s)+" 天")
+    : "百日同在已成 · 燈火長明";
+  document.getElementById("a5MileDevFill").style.width=Math.min(100, Math.round(s/100*100))+"%";
+
+  var t=a5Totals();
+  var nextW=null;
+  for(var j=0;j<A5_WALK_MILES.length;j++){ if(t.walk<A5_WALK_MILES[j]){ nextW=A5_WALK_MILES[j]; break; } }
+  document.getElementById("a5MileWalkNext").textContent = nextW
+    ? ("距下一座里程碑 "+(nextW-t.walk)+" 次")
+    : "百次同行已成 · 腳蹤佳美";
+  document.getElementById("a5MileWalkFill").style.width=Math.min(100, Math.round(t.walk/100*100))+"%";
+
+  var dots="";
+  var wn2=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  for(var d7=6;d7>=0;d7--){
+    var dd=new Date(); dd.setDate(dd.getDate()-d7);
+    var kk=dateKey(dd);
+    var hit=a5DevOn(kk) ? " hit" : "";
+    var tRing=(kk===k) ? " today-ring" : "";
+    dots += '<div class="dot-cell">'
+          +   '<div class="dot'+hit+tRing+'">'+(a5DevOn(kk)?"✓":"")+'</div>'
+          +   '<div class="dot-lab">'+wn2[dd.getDay()]+'</div>'
+          + '</div>';
+  }
+  document.getElementById("a5Dots").innerHTML=dots;
+
+  var li=levelFrom(A5_LEVELS, a5().xp);
+  document.getElementById("a5LevelTitle").textContent=li.cur.title;
+  document.getElementById("a5LevelNum").textContent="LV."+li.lv;
+  var fillPct=100, label=a5().xp+" XP · 已達最高階";
+  if(li.next){
+    fillPct=Math.min(100, Math.round((a5().xp-li.cur.xp)/(li.next.xp-li.cur.xp)*100));
+    label=a5().xp+" XP · 距下一階 "+(li.next.xp-a5().xp)+" XP";
+  }
+  document.getElementById("a5XpFill").style.width=fillPct+"%";
+  document.getElementById("a5XpLabel").textContent=label;
+
+  var bg="";
+  for(var b=0;b<A5_BADGES.length;b++){
+    var bd=A5_BADGES[b];
+    bg += '<div class="badge'+(a5HasBadge(bd.id)?' won':'')+'">'
+        +   '<div class="badge-ico">'+bd.ico+'</div>'
+        +   '<div class="badge-name">'+bd.name+'</div>'
+        +   '<div class="badge-desc">'+bd.desc+'</div>'
+        + '</div>';
+  }
+  document.getElementById("a5BadgeGrid").innerHTML=bg;
+
+  document.getElementById("a5LifeDev").textContent=String(t.dev);
+  document.getElementById("a5LifeWalk").textContent=String(t.walk);
+  document.getElementById("a5LifeBest").textContent=String(Math.max(a5BestStreak(), a5Streak()));
+  document.getElementById("a5LifeWeeks").textContent=String(t.weeks);
+  document.getElementById("a5LifeXp").textContent=String(a5().xp);
+}
+var a5DevBtn=document.querySelector('[data-a5="dev"]');
+if(a5DevBtn) a5DevBtn.addEventListener("click", a5ToggleDev);
+var a5WalkBtn=document.querySelector('[data-a5walk]');
+if(a5WalkBtn) a5WalkBtn.addEventListener("click", a5AddWalk);
+document.getElementById("a5UndoBtn").addEventListener("click", a5UndoWalk);
+
+/* ================= A6: Authorship ================= */
+function a6(){ return state.areas.a6; }
+function a6WeekCount(wk){
+  var c=0;
+  for(var i=0;i<a6().posts.length;i++){
+    if(weekKeyOf(new Date(a6().posts[i].d+"T00:00:00"))===wk) c++;
+  }
+  return c;
+}
+function a6WeekMet(wk){ return a6WeekCount(wk)>=A6_WEEK_GOAL; }
+function a6WeekStreak(){
+  var d=new Date();
+  var wk=weekKeyOf(d);
+  var run=0;
+  if(!a6WeekMet(wk)){ d.setDate(d.getDate()-7); wk=weekKeyOf(d); }
+  for(var i=0;i<300;i++){
+    if(a6WeekMet(wk)){ run++; d.setDate(d.getDate()-7); wk=weekKeyOf(d); }
+    else break;
+  }
+  return run;
+}
+function a6BestWeekStreak(){
+  // collect met week keys, count longest consecutive run
+  var met={}, i;
+  for(i=0;i<a6().posts.length;i++){
+    var wk=weekKeyOf(new Date(a6().posts[i].d+"T00:00:00"));
+    met[wk]=(met[wk]||0)+1;
+  }
+  var keys=Object.keys(met).filter(function(k){ return met[k]>=A6_WEEK_GOAL; }).sort();
+  var best=0, run=0, prev=null;
+  for(i=0;i<keys.length;i++){
+    if(prev){
+      var pd=new Date(prev+"T00:00:00"), cd=new Date(keys[i]+"T00:00:00");
+      run = (cd-pd===7*86400000) ? run+1 : 1;
+    }else run=1;
+    if(run>best) best=run;
+    prev=keys[i];
+  }
+  return best;
+}
+function a6MetWeeksTotal(){
+  var met={}, i;
+  for(i=0;i<a6().posts.length;i++){
+    var wk=weekKeyOf(new Date(a6().posts[i].d+"T00:00:00"));
+    met[wk]=(met[wk]||0)+1;
+  }
+  var c=0;
+  for(var k in met){ if(met[k]>=A6_WEEK_GOAL) c++; }
+  return c;
+}
+function a6HasBadge(id){ return a6().badges.indexOf(id)>=0; }
+function a6Award(id){
+  if(a6HasBadge(id)) return;
+  a6().badges.push(id);
+  var b=null;
+  for(var i=0;i<A6_BADGES.length;i++){ if(A6_BADGES[i].id===id){ b=A6_BADGES[i]; break; } }
+  if(b) setTimeout(function(){ toast("🏅 解鎖成就：「"+b.name+"」"); }, 700);
+}
+function a6CheckBadges(){
+  var total=a6().posts.length;
+  if(total>=1) a6Award("a6_first");
+  if(total>=10) a6Award("a6_p10");
+  if(total>=50) a6Award("a6_p50");
+  if(total>=100) a6Award("a6_p100");
+  var s=a6WeekStreak();
+  var mileMap={4:"a6_w4",12:"a6_w12",26:"a6_w26",52:"a6_w52"};
+  for(var i=0;i<A6_MILES.length;i++){
+    var m=A6_MILES[i];
+    if(s>=m && !a6HasBadge(mileMap[m])){
+      a6Award(mileMap[m]);
+      a6().xp += A6_MILE_XP[m];
+      (function(mm){ setTimeout(function(){ toast("⛰️ 連續 "+mm+" 週！+"+A6_MILE_XP[mm]+" XP"); }, 1400); })(m);
+    }
+  }
+}
+function a6AddPost(){
+  var k=today();
+  a6().posts.push({d:k, ts:Date.now()});
+  a6().xp += A6_POST_XP;
+  toast("+"+A6_POST_XP+" XP · 又一篇傳世之作");
+  var wk=weekKeyOf(new Date());
+  if(!a6().weekBonus[wk] && a6WeekMet(wk)){
+    a6().weekBonus[wk]=1;
+    a6().xp += A6_WEEK_BONUS;
+    setTimeout(function(){ toast("🎉 本週達標！+"+A6_WEEK_BONUS+" XP"); }, 900);
+  }
+  a6CheckBadges();
+  save();
+  renderA6();
+}
+function a6Undo(){
+  var p=a6().posts.pop();
+  if(!p){ toast("沒有可復原的紀錄"); return; }
+  a6().xp=Math.max(0, a6().xp-A6_POST_XP);
+  var wk=weekKeyOf(new Date(p.d+"T00:00:00"));
+  if(a6().weekBonus[wk] && !a6WeekMet(wk)){
+    delete a6().weekBonus[wk];
+    a6().xp=Math.max(0, a6().xp-A6_WEEK_BONUS);
+  }
+  toast("↺ 已復原一篇發布");
+  save();
+  renderA6();
+}
+function renderA6(){
+  var el=document.getElementById("a6TodayLabel");
+  if(!el) return;
+  var now=new Date();
+  var wnames=["日","一","二","三","四","五","六"];
+  el.textContent = now.getFullYear()+" 年 "+(now.getMonth()+1)+" 月 "+now.getDate()+" 日 · 星期"+wnames[now.getDay()]+" · 今日書齋";
+
+  var wk=weekKeyOf(now);
+  var c=a6WeekCount(wk);
+  var pct=Math.min(100, Math.round(c/A6_WEEK_GOAL*100));
+  var fill=document.getElementById("a6WkFill");
+  fill.style.width=pct+"%";
+  fill.classList.toggle("full", c>=A6_WEEK_GOAL);
+  document.getElementById("a6WkNum").textContent=c+" / "+A6_WEEK_GOAL+" 篇";
+  document.getElementById("a6DoneMsg").textContent = c>=A6_WEEK_GOAL ? "⚑ 本週達標 · 筆耕不輟" : "";
+
+  var s=a6WeekStreak();
+  document.getElementById("a6StreakBig").textContent=String(s);
+  var nextM=null;
+  for(var i=0;i<A6_MILES.length;i++){ if(s<A6_MILES[i]){ nextM=A6_MILES[i]; break; } }
+  document.getElementById("a6MileNext").textContent = nextM
+    ? ("距下一座里程碑 "+(nextM-s)+" 週")
+    : "週年傳承已成 · 筆墨仍在延續";
+  document.getElementById("a6MileFill").style.width = Math.min(100, Math.round(s/52*100))+"%";
+
+  // last 8 weeks dots
+  var dots="";
+  for(var j=7;j>=0;j--){
+    var dd=new Date(); dd.setDate(dd.getDate()-j*7);
+    var wkk=weekKeyOf(dd);
+    var metd=a6WeekMet(wkk);
+    var tRing=(wkk===wk) ? " today-ring" : "";
+    var lab=wkk.slice(5).replace("-","/");
+    dots += '<div class="dot-cell">'
+          +   '<div class="dot'+(metd?" hit":"")+tRing+'">'+(metd?"✓":"")+'</div>'
+          +   '<div class="dot-lab">'+lab+'</div>'
+          + '</div>';
+  }
+  document.getElementById("a6Dots").innerHTML=dots;
+
+  var li=levelFrom(A6_LEVELS, a6().xp);
+  document.getElementById("a6LevelTitle").textContent = li.cur.title;
+  document.getElementById("a6LevelNum").textContent = "LV."+li.lv;
+  var fillPct=100, label=a6().xp+" XP · 已達最高階";
+  if(li.next){
+    fillPct=Math.min(100, Math.round((a6().xp-li.cur.xp)/(li.next.xp-li.cur.xp)*100));
+    label=a6().xp+" XP · 距下一階 "+(li.next.xp-a6().xp)+" XP";
+  }
+  document.getElementById("a6XpFill").style.width = fillPct+"%";
+  document.getElementById("a6XpLabel").textContent = label;
+
+  var bg="";
+  for(var b=0;b<A6_BADGES.length;b++){
+    var bd=A6_BADGES[b];
+    bg += '<div class="badge'+(a6HasBadge(bd.id)?' won':'')+'">'
+        +   '<div class="badge-ico">'+bd.ico+'</div>'
+        +   '<div class="badge-name">'+bd.name+'</div>'
+        +   '<div class="badge-desc">'+bd.desc+'</div>'
+        + '</div>';
+  }
+  document.getElementById("a6BadgeGrid").innerHTML=bg;
+
+  document.getElementById("a6LifePosts").textContent=String(a6().posts.length);
+  document.getElementById("a6LifeWeeks").textContent=String(a6MetWeeksTotal());
+  document.getElementById("a6LifeBest").textContent=String(Math.max(a6BestWeekStreak(), a6WeekStreak()));
+  document.getElementById("a6LifeXp").textContent=String(a6().xp);
+}
+document.getElementById("a6PubBtn").addEventListener("click", a6AddPost);
+document.getElementById("a6UndoBtn").addEventListener("click", a6Undo);
+
+/* ================= A7: Abundance Urban Farming ================= */
+function a7(){ return state.areas.a7; }
+function a7WeekCount(type, wk){
+  var c=0;
+  for(var i=0;i<a7().entries.length;i++){
+    var e=a7().entries[i];
+    if(e.type===type && weekKeyOf(new Date(e.d+"T00:00:00"))===wk) c++;
+  }
+  return c;
+}
+function a7WeekMet(wk){
+  return a7WeekCount("labor",wk)>=A7_WEEK_LABOR_GOAL && a7WeekCount("study",wk)>=A7_WEEK_STUDY_GOAL;
+}
+function a7LaborDays(){
+  var set={};
+  for(var i=0;i<a7().entries.length;i++){
+    var e=a7().entries[i];
+    if(e.type==="labor") set[e.d]=1;
+  }
+  return set;
+}
+function a7Streak(){
+  var days=a7LaborDays();
+  var streak=0;
+  var d=new Date();
+  if(!days[dateKey(d)]){ d.setDate(d.getDate()-1); }
+  for(var i=0;i<800;i++){
+    if(days[dateKey(d)]){ streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+function a7BestStreak(){
+  var keys=Object.keys(a7LaborDays()).sort();
+  var best=0, run=0, prev=null;
+  for(var i=0;i<keys.length;i++){
+    if(prev){
+      var pd=new Date(prev+"T00:00:00"), cd=new Date(keys[i]+"T00:00:00");
+      run = (cd-pd===86400000) ? run+1 : 1;
+    }else run=1;
+    if(run>best) best=run;
+    prev=keys[i];
+  }
+  return best;
+}
+function a7Totals(){
+  var t={labor:0,study:0};
+  for(var i=0;i<a7().entries.length;i++){ t[a7().entries[i].type]++; }
+  return t;
+}
+function a7MetWeeksTotal(){
+  var c=0;
+  for(var k in a7().weekBonus){ if(a7().weekBonus[k]) c++; }
+  return c;
+}
+function a7ConsecWeeks(){
+  var d=new Date();
+  var wk=weekKeyOf(d);
+  var run=0;
+  if(!a7WeekMet(wk)){ d.setDate(d.getDate()-7); wk=weekKeyOf(d); }
+  for(var i=0;i<300;i++){
+    if(a7WeekMet(wk)){ run++; d.setDate(d.getDate()-7); wk=weekKeyOf(d); }
+    else break;
+  }
+  return run;
+}
+function a7HasBadge(id){ return a7().badges.indexOf(id)>=0; }
+function a7Award(id){
+  if(a7HasBadge(id)) return;
+  a7().badges.push(id);
+  var b=null;
+  for(var i=0;i<A7_BADGES.length;i++){ if(A7_BADGES[i].id===id){ b=A7_BADGES[i]; break; } }
+  if(b) setTimeout(function(){ toast("🏅 解鎖成就：「"+b.name+"」"); }, 700);
+}
+function a7CheckBadges(){
+  var t=a7Totals();
+  if(t.labor+t.study>=1) a7Award("a7_first");
+  if(t.study>=10) a7Award("a7_study10");
+  if(t.labor>=50) a7Award("a7_labor50");
+  if(a7ConsecWeeks()>=4) a7Award("a7_w4");
+  var s=a7Streak();
+  var mileMap={7:"a7_s7",21:"a7_s21",66:"a7_s66",100:"a7_s100"};
+  for(var i=0;i<A7_MILES.length;i++){
+    var m=A7_MILES[i];
+    if(s>=m && !a7HasBadge(mileMap[m])){
+      a7Award(mileMap[m]);
+      a7().xp += A7_MILE_XP[m];
+      (function(mm){ setTimeout(function(){ toast("⛰️ 連續照料 "+mm+" 天！+"+A7_MILE_XP[mm]+" XP"); }, 1400); })(m);
+    }
+  }
+}
+function a7Add(type){
+  var k=today();
+  a7().entries.push({d:k, type:type, ts:Date.now()});
+  a7().xp += A7_ACT_XP;
+  toast("+"+A7_ACT_XP+" XP · "+A7_NAMES[type]);
+  var wk=weekKeyOf(new Date());
+  if(!a7().weekBonus[wk] && a7WeekMet(wk)){
+    a7().weekBonus[wk]=1;
+    a7().xp += A7_WEEK_BONUS;
+    setTimeout(function(){ toast("🎉 本週雙達標！+"+A7_WEEK_BONUS+" XP"); }, 900);
+  }
+  a7CheckBadges();
+  save();
+  renderA7();
+}
+function a7Undo(){
+  var e=a7().entries.pop();
+  if(!e){ toast("沒有可復原的紀錄"); return; }
+  a7().xp=Math.max(0, a7().xp-A7_ACT_XP);
+  var wk=weekKeyOf(new Date(e.d+"T00:00:00"));
+  if(a7().weekBonus[wk] && !a7WeekMet(wk)){
+    delete a7().weekBonus[wk];
+    a7().xp=Math.max(0, a7().xp-A7_WEEK_BONUS);
+  }
+  toast("↺ 已復原："+A7_NAMES[e.type]);
+  save();
+  renderA7();
+}
+function renderA7(){
+  var el=document.getElementById("a7TodayLabel");
+  if(!el) return;
+  var now=new Date();
+  var wnames=["日","一","二","三","四","五","六"];
+  el.textContent = now.getFullYear()+" 年 "+(now.getMonth()+1)+" 月 "+now.getDate()+" 日 · 星期"+wnames[now.getDay()]+" · 今日園圃";
+
+  var wk=weekKeyOf(now);
+  var lc=a7WeekCount("labor",wk), sc=a7WeekCount("study",wk);
+  var lFill=document.getElementById("a7WkLaborFill");
+  lFill.style.width=Math.min(100, Math.round(lc/A7_WEEK_LABOR_GOAL*100))+"%";
+  lFill.classList.toggle("full", lc>=A7_WEEK_LABOR_GOAL);
+  document.getElementById("a7WkLaborNum").textContent=lc+" / "+A7_WEEK_LABOR_GOAL+" 次";
+  var sFill=document.getElementById("a7WkStudyFill");
+  sFill.style.width=Math.min(100, Math.round(sc/A7_WEEK_STUDY_GOAL*100))+"%";
+  sFill.classList.toggle("full", sc>=A7_WEEK_STUDY_GOAL);
+  document.getElementById("a7WkStudyNum").textContent=sc+" / "+A7_WEEK_STUDY_GOAL+" 次";
+  document.getElementById("a7DoneMsg").textContent = a7WeekMet(wk) ? "⚑ 本週雙達標 · 園圃欣欣向榮" : "";
+
+  var s=a7Streak();
+  document.getElementById("a7StreakBig").textContent=String(s);
+  var nextM=null;
+  for(var i=0;i<A7_MILES.length;i++){ if(s<A7_MILES[i]){ nextM=A7_MILES[i]; break; } }
+  document.getElementById("a7MileNext").textContent = nextM
+    ? ("距下一座里程碑 "+(nextM-s)+" 天")
+    : "百日豐盛已成 · 園子仍在生長";
+  document.getElementById("a7MileFill").style.width = Math.min(100, Math.round(s/100*100))+"%";
+
+  var days=a7LaborDays();
+  var dots="";
+  var wn2=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  var k=today();
+  for(var j=6;j>=0;j--){
+    var dd=new Date(); dd.setDate(dd.getDate()-j);
+    var kk=dateKey(dd);
+    var hit=days[kk] ? " hit" : "";
+    var tRing=(kk===k) ? " today-ring" : "";
+    dots += '<div class="dot-cell">'
+          +   '<div class="dot'+hit+tRing+'">'+(days[kk]?"✓":"")+'</div>'
+          +   '<div class="dot-lab">'+wn2[dd.getDay()]+'</div>'
+          + '</div>';
+  }
+  document.getElementById("a7Dots").innerHTML=dots;
+
+  var li=levelFrom(A7_LEVELS, a7().xp);
+  document.getElementById("a7LevelTitle").textContent = li.cur.title;
+  document.getElementById("a7LevelNum").textContent = "LV."+li.lv;
+  var fillPct=100, label=a7().xp+" XP · 已達最高階";
+  if(li.next){
+    fillPct=Math.min(100, Math.round((a7().xp-li.cur.xp)/(li.next.xp-li.cur.xp)*100));
+    label=a7().xp+" XP · 距下一階 "+(li.next.xp-a7().xp)+" XP";
+  }
+  document.getElementById("a7XpFill").style.width = fillPct+"%";
+  document.getElementById("a7XpLabel").textContent = label;
+
+  var bg="";
+  for(var b=0;b<A7_BADGES.length;b++){
+    var bd=A7_BADGES[b];
+    bg += '<div class="badge'+(a7HasBadge(bd.id)?' won':'')+'">'
+        +   '<div class="badge-ico">'+bd.ico+'</div>'
+        +   '<div class="badge-name">'+bd.name+'</div>'
+        +   '<div class="badge-desc">'+bd.desc+'</div>'
+        + '</div>';
+  }
+  document.getElementById("a7BadgeGrid").innerHTML=bg;
+
+  var t=a7Totals();
+  document.getElementById("a7LifeLabor").textContent=String(t.labor);
+  document.getElementById("a7LifeStudy").textContent=String(t.study);
+  document.getElementById("a7LifeBest").textContent=String(Math.max(a7BestStreak(), a7Streak()));
+  document.getElementById("a7LifeWeeks").textContent=String(a7MetWeeksTotal());
+  document.getElementById("a7LifeXp").textContent=String(a7().xp);
+}
+document.querySelectorAll("[data-a7]").forEach(function(btn){
+  btn.addEventListener("click", function(){ a7Add(btn.getAttribute("data-a7")); });
+});
+document.getElementById("a7UndoBtn").addEventListener("click", a7Undo);
+
+/* ================= Toast ================= */
+var toastTimer = null;
+function toast(msg){
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 1800);
+}
+
+/* ================= Events: A4 ================= */
+document.querySelectorAll(".act-btn,.fun-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){ addAction(btn.getAttribute("data-act")); });
+});
+document.getElementById("undoBtn").addEventListener("click", undo);
+
+document.querySelectorAll(".tab-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("active"); });
+    document.querySelectorAll("#screen-a4 .panel").forEach(function(p){ p.classList.remove("active"); });
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.getAttribute("data-tab")).classList.add("active");
+    window.scrollTo({top:0});
+  });
+});
+
+document.querySelectorAll(".copy-btn[data-copy]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var id = btn.getAttribute("data-copy");
+    var text = document.getElementById(id).textContent;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast("📋 已複製劍譜"); },
+        function(){ toast("複製失敗，請手動選取"); });
+    }else{
+      toast("此瀏覽器不支援自動複製");
+    }
+  });
+});
+
+/* ================= Backup: export / import ================= */
+function updateVaultMeta(){
+  var el = document.getElementById("vaultMeta");
+  if(!el) return;
+  var t = state.lastBackup;
+  el.textContent = t ? ("上次匯出備份："+t) : "尚未匯出過備份";
+}
+
+document.getElementById("exportBtn").addEventListener("click", function(){
+  var payload = {
+    app:"SevenAQuest", version:2,
+    exportedAt:new Date().toISOString(),
+    data:state
+  };
+  var blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "7a-quest-backup-"+today()+".json";
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
+  state.lastBackup = today();
+  save(); updateVaultMeta();
+  toast("⬇️ 備份已匯出，請妥善收藏");
+});
+
+document.getElementById("importBtn").addEventListener("click", function(){
+  document.getElementById("importFile").click();
+});
+document.getElementById("importFile").addEventListener("change", function(ev){
+  var f = ev.target.files && ev.target.files[0];
+  ev.target.value = "";
+  if(!f) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var p = JSON.parse(reader.result);
+      var incoming = null;
+      if(p && p.app==="SevenAQuest" && p.data && p.data.areas){
+        incoming = p.data;
+      }else if(p && p.app==="DentalQuest100" && p.data && typeof p.data.days==="object"){
+        // legacy single-game backup → import into A4
+        incoming = emptyState();
+        incoming.areas.a4.days = p.data.days||{};
+        incoming.areas.a4.xp = p.data.xp||0;
+        incoming.areas.a4.badges = p.data.badges||[];
+      }
+      if(!incoming) throw new Error("format");
+      if(!confirm("匯入將覆蓋本裝置目前的全部 7A 紀錄，確定繼續？")) return;
+      state = normalize(incoming);
+      state.version = 2;
+      save(); renderHub(); render(); renderA1(); renderA2(); renderA3(); renderA5(); renderA6(); renderA7(); updateVaultMeta();
+      toast("⬆️ 備份已匯入，征途重啟");
+    }catch(e){
+      toast("匯入失敗：檔案格式不正確");
+    }
+  };
+  reader.readAsText(f);
+});
+
+/* midnight rollover check */
+var lastRenderDay = today();
+setInterval(function(){
+  if(today()!==lastRenderDay){ lastRenderDay = today(); render(); renderA1(); renderA2(); renderA3(); renderA5(); renderA6(); renderA7(); renderHub(); }
+}, 30000);
+
+save();
+renderHub();
+render();
+renderA1();
+renderA2();
+renderA3();
+renderA5();
+renderA6();
+renderA7();
+})();
+</script>
+</body>
+</html>
